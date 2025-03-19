@@ -30,11 +30,17 @@ public class LoginActivity extends AppCompatActivity {
         passwordEt = findViewById(R.id.password_et);
         Button authBtn = findViewById(R.id.auth_btn);
         TextView goToRegister = findViewById(R.id.go_to_register_activity);
+        TextView goToResetPassword = findViewById(R.id.go_to_reset_password_activity);
 
         authBtn.setOnClickListener(v -> loginUser());
 
         goToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
+
+        goToResetPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
             startActivity(intent);
         });
     }
@@ -66,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
                                     finish();
                                 });
                     } else {
-                        Toast.makeText(LoginActivity.this, "Ошибка авторизации",
+                        Toast.makeText(LoginActivity.this, "Неверная почта или пароль!",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

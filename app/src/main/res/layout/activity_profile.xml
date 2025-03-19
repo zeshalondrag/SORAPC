@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileActivity"
+    android:background="@color/EerieBlack"
+    android:orientation="vertical">
+
+    <include layout="@layout/header"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sora_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="SORA ID"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="@color/white"
+                android:textSize="32sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Ваш единый аккаунт на SORAPC"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="#666666"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sora_card_id"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/linearLayout2"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/rounded_text">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Фамилия"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:id="@+id/SURNAME"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Имя"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:id="@+id/NAME"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Отчество"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:id="@+id/MIDDLENAME"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Почта"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:id="@+id/EMAIL"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Пароль"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"
+                        android:paddingTop="5dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/PASSWORD"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/ubuntu_medium"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:paddingTop="5dp"/>
+
+                        <TextView
+                            android:id="@+id/change_password"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Изменить"
+                            android:fontFamily="@font/ubuntu_medium"
+                            android:textColor="@color/Aquamarine"
+                            android:textSize="16sp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Номер телефона"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="20sp"
+                        android:paddingTop="5dp"/>
+
+                    <TextView
+                        android:id="@+id/PHONE"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:paddingTop="5dp"/>
+
+                    <Button
+                        android:id="@+id/edit_data_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Изменить данные"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:backgroundTint="@color/Aquamarine"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="5dp"/>
+
+                    <Button
+                        android:id="@+id/favourites_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Избранное"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:backgroundTint="@color/Aquamarine"
+                        android:textColor="@color/white"/>
+
+                    <Button
+                        android:id="@+id/log_out"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Выйти из аккаунта"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:backgroundTint="#F44336"
+                        android:textColor="@color/white"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <include layout="@layout/bottom_navigation"/>
+
+</LinearLayout>

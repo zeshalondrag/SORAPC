@@ -11,8 +11,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,32 +86,35 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Map<String, Object> user = new HashMap<>();
-                        user.put("surname", surname);
-                        user.put("name", name);
-                        user.put("middlename", middlename);
-                        user.put("email", email);
-                        user.put("phone", phone);
-                        user.put("role", "Client");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            Map<String, Object> userData = new HashMap<>();
+                            userData.put("surname", surname);
+                            userData.put("name", name);
+                            userData.put("middlename", middlename);
+                            userData.put("email", email);
+                            userData.put("phone", phone);
+                            userData.put("role", "Client");
 
-                        db.collection("users")
-                                .document(mAuth.getCurrentUser().getUid())
-                                .set(user)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(RegisterActivity.this,
-                                            "Регистрация успешна",
-                                            Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(RegisterActivity.this,
-                                            "Ошибка при сохранении данных",
-                                            Toast.LENGTH_SHORT).show();
-                                });
+                            db.collection("users")
+                                    .document(user.getUid())
+                                    .set(userData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(RegisterActivity.this,
+                                                "Регистрация успешна",
+                                                Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(RegisterActivity.this,
+                                                "Ошибка при сохранении данных",
+                                                Toast.LENGTH_SHORT).show();
+                                    });
+                        }
                     } else {
                         Toast.makeText(RegisterActivity.this,
-                                "Ошибка регистрации",
+                                "Ошибка регистрации: " + task.getException().getMessage(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
