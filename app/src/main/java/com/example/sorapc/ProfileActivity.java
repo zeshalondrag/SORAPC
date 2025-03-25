@@ -51,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
+        new BottomNavigation(this, R.id.bottom_profile);
 
         loadUserData();
 

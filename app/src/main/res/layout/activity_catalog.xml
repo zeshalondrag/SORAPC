@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/catalog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CatalogActivity"
+    android:background="@color/EerieBlack"
+    android:orientation="vertical">
+
+    <include layout="@layout/header"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/search_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Поиск по артикулу"
+            android:fontFamily="@font/ubuntu_medium"
+            android:background="@drawable/rounded_text"
+            android:padding="16dp"
+            android:textColor="@color/white"
+            android:textColorHint="#666666"
+            android:inputType="number"
+            android:digits="0123456789"
+            android:singleLine="true" />
+
+        <LinearLayout
+            android:id="@+id/filters_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/search_edit_text"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Spinner
+                    android:id="@+id/price_filter_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_text"
+                    android:padding="12dp"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/price_filter_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/baseline_arrow_drop_down_24"
+                    android:contentDescription="Иконка выпадающего списка" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <Spinner
+                    android:id="@+id/category_filter_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_text"
+                    android:padding="12dp"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/category_filter_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/baseline_arrow_drop_down_24"
+                    android:contentDescription="Иконка выпадающего списка" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/products_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/filters_layout"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/bottom_navigation"/>
+
+</LinearLayout>

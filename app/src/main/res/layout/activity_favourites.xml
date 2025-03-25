@@ -13,27 +13,37 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/favourites_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
+            android:text="Избранное"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_centerHorizontal="true"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favourites_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/favourites_title"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/empty_favourites_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Избранное"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_gravity="center"/>
-
-        </LinearLayout>
+            android:text="Нет избранных товаров"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

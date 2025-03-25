@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/bottom_home"
+        android:id="@+id/bottom_main"
         android:icon="@drawable/main"
         android:title="Главная" />
     <item
-        android:id="@+id/bottom_search"
+        android:id="@+id/bottom_catalog"
         android:icon="@drawable/catalog"
         android:title="Каталог" />
     <item
-        android:id="@+id/bottom_settings"
+        android:id="@+id/bottom_cart"
         android:icon="@drawable/cart"
         android:title="Корзина" />
     <item
+        android:id="@+id/bottom_favourites"
+        android:icon="@drawable/heart_unpressed"
+        android:title="Избранное"
+        android:visible="false"/>
+    <item
         android:id="@+id/bottom_profile"
-        android:icon="@drawable/support"
-        android:title="Поддержка" />
+        android:icon="@drawable/profile"
+        android:title="Профиль"
+        android:visible="false"/>
+
 </menu>
