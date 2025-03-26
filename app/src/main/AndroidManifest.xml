@@ -28,6 +28,7 @@
         <activity android:name=".ResetPasswordActivity" android:exported="false"/>
         <activity android:name=".CatalogActivity" android:exported="false"/>
         <activity android:name=".CartActivity" android:exported="false"/>
+        <activity android:name=".CheckoutActivity" android:exported="false"/>
     </application>
 
 </manifest>

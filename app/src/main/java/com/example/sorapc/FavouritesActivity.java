@@ -3,6 +3,7 @@ package com.example.sorapc;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,8 @@ public class FavouritesActivity extends AppCompatActivity {
     private RecyclerView favouritesRecyclerView;
     private FavouritesAdapter favouritesAdapter;
     private List<Product> favouritesList;
+    private ImageView backIcon;
+    private TextView emptyFavouritesText, empty_favourites_hint_text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +43,25 @@ public class FavouritesActivity extends AppCompatActivity {
             return;
         }
 
+        backIcon = findViewById(R.id.back_icon);
         favouritesRecyclerView = findViewById(R.id.favourites_recycler_view);
+        emptyFavouritesText = findViewById(R.id.empty_favourites_text);
+        empty_favourites_hint_text = findViewById(R.id.empty_favourites_hint_text);
+
         favouritesList = new ArrayList<>();
         favouritesAdapter = new FavouritesAdapter(this, favouritesList);
         favouritesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         favouritesRecyclerView.setAdapter(favouritesAdapter);
 
+        backIcon.setOnClickListener(v -> onBackPressed());
+
         loadFavourites();
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
-        new BottomNavigation(this, R.id.bottom_favourites);
     }
 
     private void loadFavourites() {
-        TextView emptyText = findViewById(R.id.empty_favourites_text);
         String userId = auth.getCurrentUser().getUid();
         db.collection("users").document(userId)
                 .collection("favorites")
@@ -63,14 +70,27 @@ public class FavouritesActivity extends AppCompatActivity {
                         Toast.makeText(this, "Ошибка загрузки избранного: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    favouritesList.clear();
+
+                    List<Product> newFavouritesList = new ArrayList<>();
                     for (QueryDocumentSnapshot document : value) {
                         Product product = document.toObject(Product.class);
-                        favouritesList.add(product);
+                        product.setFavorite(true);
+                        newFavouritesList.add(product);
                     }
-                    favouritesAdapter.notifyDataSetChanged();
-                    emptyText.setVisibility(favouritesList.isEmpty() ? View.VISIBLE : View.GONE);
+
+                    favouritesList.clear();
+                    favouritesList.addAll(newFavouritesList);
+
+                    emptyFavouritesText.setVisibility(favouritesList.isEmpty() ? View.VISIBLE : View.GONE);
+                    empty_favourites_hint_text.setVisibility(favouritesList.isEmpty() ? View.VISIBLE : View.GONE);
                     favouritesRecyclerView.setVisibility(favouritesList.isEmpty() ? View.GONE : View.VISIBLE);
+
+                    favouritesAdapter.notifyDataSetChanged();
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

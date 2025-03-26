@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +20,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
 
-public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavouriteViewHolder> {
+public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavouritesViewHolder> {
 
     private Context context;
     private List<Product> favouritesList;
@@ -35,13 +36,13 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
     @NonNull
     @Override
-    public FavouriteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_favourite, parent, false);
-        return new FavouriteViewHolder(view);
+    public FavouritesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
+        return new FavouritesViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FavouriteViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FavouritesViewHolder holder, int position) {
         Product product = favouritesList.get(position);
 
         holder.titleTextView.setText(product.getTitle());
@@ -58,16 +59,37 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.productImage);
 
-        holder.deleteIcon.setOnClickListener(v -> {
+        holder.favoriteIcon.setImageResource(R.drawable.heart_pressed);
+
+        holder.favoriteIcon.setOnClickListener(v -> {
+            if (auth.getCurrentUser() == null) {
+                Toast.makeText(context, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String userId = auth.getCurrentUser().getUid();
             db.collection("users").document(userId)
                     .collection("favorites").document(product.getArticle())
                     .delete()
                     .addOnSuccessListener(aVoid -> {
-                        favouritesList.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, favouritesList.size());
-                        Toast.makeText(context, "Удалено из избранного", Toast.LENGTH_SHORT).show();
+                        notifyDataSetChanged();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        });
+
+        holder.addToCartButton.setOnClickListener(v -> {
+            if (auth.getCurrentUser() == null) {
+                Toast.makeText(context, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String userId = auth.getCurrentUser().getUid();
+            db.collection("users").document(userId)
+                    .collection("cart").document(product.getArticle())
+                    .set(product)
+                    .addOnSuccessListener(aVoid -> {
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -80,17 +102,19 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
         return favouritesList.size();
     }
 
-    static class FavouriteViewHolder extends RecyclerView.ViewHolder {
-        ImageView productImage, deleteIcon;
+    static class FavouritesViewHolder extends RecyclerView.ViewHolder {
+        ImageView productImage, favoriteIcon;
         TextView titleTextView, articleTextView, priceTextView;
+        Button addToCartButton;
 
-        public FavouriteViewHolder(@NonNull View itemView) {
+        public FavouritesViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.product_image);
-            deleteIcon = itemView.findViewById(R.id.delete_icon);
+            favoriteIcon = itemView.findViewById(R.id.favorite_icon);
             titleTextView = itemView.findViewById(R.id.product_title);
             articleTextView = itemView.findViewById(R.id.product_article);
             priceTextView = itemView.findViewById(R.id.product_price);
+            addToCartButton = itemView.findViewById(R.id.add_to_cart_button);
         }
     }
 }

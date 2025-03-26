@@ -15,27 +15,104 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/cart_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
+            android:text="Корзина"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textSize="32sp"
+            android:textColor="@android:color/white"
+            android:layout_centerHorizontal="true"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/cart_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/cart_title"
+            android:layout_marginTop="0dp"
+            android:padding="20dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:padding="16dp">
+            android:orientation="vertical"
+            android:gravity="center">
 
             <TextView
+                android:id="@+id/empty_cart_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Корзина"
+                android:text="В корзине пусто"
                 android:fontFamily="@font/ubuntu_medium"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_gravity="center"/>
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/empty_cart_hint_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Положите сюда товары, чтобы купить их сразу или не забыть купить потом"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:maxWidth="250dp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/rounded_text"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/items_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Товары (0)"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/total_price_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="0 ₽"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/checkout_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/Aquamarine"
+            android:fontFamily="@font/ubuntu_medium"
+            android:text="Перейти к оформлению"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
     <include layout="@layout/bottom_navigation"/>
 

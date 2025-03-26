@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/favourites"
+    android:id="@+id/checkout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FavouritesActivity"
+    tools:context=".CheckoutActivity"
     android:background="@color/EerieBlack"
     android:orientation="vertical">
 
@@ -17,7 +17,7 @@
         >
 
         <RelativeLayout
-            android:id="@+id/favourites_title"
+            android:id="@+id/checkout_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
@@ -26,7 +26,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Избранное"
+                android:text="Оформление"
                 android:fontFamily="@font/ubuntu_medium"
                 android:textSize="32sp"
                 android:textColor="@android:color/white"
@@ -46,44 +46,12 @@
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/favourites_recycler_view"
+            android:id="@+id/checkout_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/favourites_title"
+            android:layout_below="@id/checkout_title"
             android:layout_marginTop="0dp"
             android:padding="20dp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/empty_favourites_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="В избранном пусто"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/empty_favourites_hint_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Добавляйте товары с помощью ❤"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:maxWidth="250dp"
-                android:visibility="gone" />
-
-        </LinearLayout>
 
     </RelativeLayout>
 

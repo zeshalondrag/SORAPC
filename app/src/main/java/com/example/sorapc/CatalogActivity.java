@@ -46,7 +46,7 @@ public class CatalogActivity extends AppCompatActivity {
 
         productList = new ArrayList<>();
         productAdapter = new ProductAdapter(this, productList);
-        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 карточки в строке
+        productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         productsRecyclerView.setAdapter(productAdapter);
 
         List<String> priceSortOptions = new ArrayList<>();
@@ -100,9 +100,8 @@ public class CatalogActivity extends AppCompatActivity {
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
-        new BottomNavigation(this, R.id.bottom_catalog); // Обратите внимание, что ID теперь `nav_catalog`, как в кастомной навигации
+        new BottomNavigation(this, R.id.bottom_catalog);
 
-        // Слушатель изменений в избранном
         listenForFavoritesChanges();
     }
 
@@ -119,7 +118,6 @@ public class CatalogActivity extends AppCompatActivity {
                     ((ArrayAdapter) categoryFilterSpinner.getAdapter()).notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    // Обработка ошибки
                 });
     }
 
@@ -130,16 +128,15 @@ public class CatalogActivity extends AppCompatActivity {
                     productList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Product product = document.toObject(Product.class);
-                        product.setFavorite(false); // По умолчанию не избранное
+                        product.setFavorite(false);
                         productList.add(product);
                     }
-                    // После загрузки товаров синхронизируем состояние избранного
+
                     syncFavorites();
                     productAdapter.notifyDataSetChanged();
                     filterProducts();
                 })
                 .addOnFailureListener(e -> {
-                    // Обработка ошибки
                 });
     }
 
@@ -155,14 +152,12 @@ public class CatalogActivity extends AppCompatActivity {
                         Product product = document.toObject(Product.class);
                         favoriteArticles.add(product.getArticle());
                     }
-                    // Обновляем состояние isFavorite для каждого товара
                     for (Product product : productList) {
                         product.setFavorite(favoriteArticles.contains(product.getArticle()));
                     }
                     productAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    // Обработка ошибки
                 });
     }
 
@@ -173,7 +168,6 @@ public class CatalogActivity extends AppCompatActivity {
                 .collection("favorites")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        // Обработка ошибки
                         return;
                     }
                     List<String> favoriteArticles = new ArrayList<>();
@@ -181,7 +175,6 @@ public class CatalogActivity extends AppCompatActivity {
                         Product product = document.toObject(Product.class);
                         favoriteArticles.add(product.getArticle());
                     }
-                    // Обновляем состояние isFavorite для каждого товара
                     for (Product product : productList) {
                         product.setFavorite(favoriteArticles.contains(product.getArticle()));
                     }

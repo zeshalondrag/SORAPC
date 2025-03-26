@@ -16,12 +16,13 @@ public class Product {
     private String title;
     private boolean isFavorite;
     private int category;
+    private int quantity;
 
     public Product() {}
 
     public Product(String article, String caseName, String cooling, String cpu, String description,
                    String gpu, String img, String motherboard, String power, long price,
-                   String ram, String ssd, String title, boolean isFavorite, int category) {
+                   String ram, String ssd, String title, boolean isFavorite, int category, int quantity) {
         this.article = article;
         this.caseName = caseName;
         this.cooling = cooling;
@@ -37,6 +38,7 @@ public class Product {
         this.title = title;
         this.isFavorite = isFavorite;
         this.category = category;
+        this.quantity = quantity;
     }
 
     public String getArticle() { return article; }
@@ -83,4 +85,7 @@ public class Product {
 
     public int getCategory() { return category; }
     public void setCategory(int category) { this.category = category; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 }

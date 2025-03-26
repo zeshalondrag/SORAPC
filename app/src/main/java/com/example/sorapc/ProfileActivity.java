@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,8 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView surnameTextView, nameTextView, middleNameTextView, emailTextView, passwordTextView, phoneTextView;
     private TextView changePasswordTextView;
     private Button editDataButton, favouritesButton, logOutButton;
+
+    private ImageView backIcon;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
@@ -37,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        backIcon = findViewById(R.id.back_icon);
         surnameTextView = findViewById(R.id.SURNAME);
         nameTextView = findViewById(R.id.NAME);
         middleNameTextView = findViewById(R.id.MIDDLENAME);
@@ -51,7 +55,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
-        new BottomNavigation(this, R.id.bottom_profile);
+
+        backIcon.setOnClickListener(v -> onBackPressed());
 
         loadUserData();
 

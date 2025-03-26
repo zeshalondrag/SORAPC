@@ -13,14 +13,8 @@
         android:icon="@drawable/cart"
         android:title="Корзина" />
     <item
-        android:id="@+id/bottom_favourites"
-        android:icon="@drawable/heart_unpressed"
-        android:title="Избранное"
-        android:visible="false"/>
-    <item
-        android:id="@+id/bottom_profile"
-        android:icon="@drawable/profile"
-        android:title="Профиль"
-        android:visible="false"/>
+        android:id="@+id/bottom_support"
+        android:icon="@drawable/support"
+        android:title="Поддержка" />
 
 </menu>

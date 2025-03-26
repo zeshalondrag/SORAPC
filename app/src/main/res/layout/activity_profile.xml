@@ -19,17 +19,36 @@
             android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-            <TextView
-                android:id="@+id/sora_id"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="SORA ID"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textColor="@color/white"
-                android:textSize="32sp" />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/sora_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="SORA ID"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="32sp" />
+
+                <ImageView
+                    android:id="@+id/back_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/baseline_arrow_back_ios_new_24"
+                    android:contentDescription="Назад"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </RelativeLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -45,8 +64,9 @@
         <LinearLayout
             android:id="@+id/sora_card_id"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/linearLayout2"
+            android:orientation="vertical"
             android:padding="20dp">
 
             <LinearLayout
@@ -187,6 +207,22 @@
                         android:textSize="16sp"
                         android:paddingTop="5dp"/>
 
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/rounded_text"
+                android:layout_marginTop="30dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
                     <Button
                         android:id="@+id/edit_data_profile"
                         android:layout_width="match_parent"
@@ -221,7 +257,5 @@
         </LinearLayout>
 
     </RelativeLayout>
-
-    <include layout="@layout/bottom_navigation"/>
 
 </LinearLayout>

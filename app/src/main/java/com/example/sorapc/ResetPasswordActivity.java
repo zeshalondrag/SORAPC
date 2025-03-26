@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +17,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     private EditText emailEt;
     private Button sendLetterBtn;
+    private ImageView backIcon;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
@@ -27,8 +29,11 @@ public class ResetPasswordActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        backIcon = findViewById(R.id.back_icon);
         emailEt = findViewById(R.id.email_et2);
         sendLetterBtn = findViewById(R.id.send_email_btn);
+
+        backIcon.setOnClickListener(v -> onBackPressed());
 
         String email = getIntent().getStringExtra("email");
         if (email != null && !email.equals("Не указано")) {

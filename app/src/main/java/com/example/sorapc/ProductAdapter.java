@@ -62,7 +62,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.productImage);
 
-        // Устанавливаем состояние сердечка
         holder.favoriteIcon.setImageResource(product.isFavorite() ? R.drawable.heart_pressed : R.drawable.heart_unpressed);
 
         holder.favoriteIcon.setOnClickListener(v -> {
@@ -76,23 +75,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             String userId = auth.getCurrentUser().getUid();
             if (product.isFavorite()) {
-                // Добавляем в избранное
                 db.collection("users").document(userId)
                         .collection("favorites").document(product.getArticle())
                         .set(product)
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(context, "Добавлено в избранное", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
             } else {
-                // Удаляем из избранного
                 db.collection("users").document(userId)
                         .collection("favorites").document(product.getArticle())
                         .delete()
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(context, "Удалено из избранного", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -107,11 +102,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             }
 
             String userId = auth.getCurrentUser().getUid();
+            product.setQuantity(1);
             db.collection("users").document(userId)
                     .collection("cart").document(product.getArticle())
                     .set(product)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(context, "Добавлено в корзину", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
