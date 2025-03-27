@@ -103,6 +103,7 @@ public class CatalogActivity extends AppCompatActivity {
         new BottomNavigation(this, R.id.bottom_catalog);
 
         listenForFavoritesChanges();
+        listenForProductsChanges();
     }
 
     private void loadCategories() {
@@ -137,6 +138,24 @@ public class CatalogActivity extends AppCompatActivity {
                     filterProducts();
                 })
                 .addOnFailureListener(e -> {
+                });
+    }
+
+    private void listenForProductsChanges() {
+        db.collection("products")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        return;
+                    }
+                    productList.clear();
+                    for (QueryDocumentSnapshot document : value) {
+                        Product product = document.toObject(Product.class);
+                        product.setFavorite(false);
+                        productList.add(product);
+                    }
+                    syncFavorites();
+                    productAdapter.notifyDataSetChanged();
+                    filterProducts();
                 });
     }
 

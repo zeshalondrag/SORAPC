@@ -1,6 +1,7 @@
 package com.example.sorapc;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -64,6 +66,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         holder.favoriteIcon.setImageResource(product.isFavorite() ? R.drawable.heart_pressed : R.drawable.heart_unpressed);
 
+        if (product.getQuantity() <= 0) {
+            holder.addToCartButton.setText("Нет товара");
+            holder.addToCartButton.setEnabled(false);
+            holder.addToCartButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.disabled_button_color)));
+        } else {
+            holder.addToCartButton.setText("В корзину");
+            holder.addToCartButton.setEnabled(true);
+            holder.addToCartButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.Aquamarine)));
+        }
+
         holder.favoriteIcon.setOnClickListener(v -> {
             if (auth.getCurrentUser() == null) {
                 Toast.makeText(context, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
@@ -98,6 +110,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.addToCartButton.setOnClickListener(v -> {
             if (auth.getCurrentUser() == null) {
                 Toast.makeText(context, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (product.getQuantity() <= 0) {
                 return;
             }
 

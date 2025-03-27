@@ -1,6 +1,8 @@
 package com.example.sorapc;
 
-public class Product {
+import java.io.Serializable;
+
+public class Product implements Serializable {
     private String article;
     private String caseName;
     private String cooling;

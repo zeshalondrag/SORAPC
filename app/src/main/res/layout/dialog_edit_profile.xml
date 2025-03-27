@@ -71,6 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Сохранить"
+            android:textAllCaps="false"
             android:fontFamily="@font/ubuntu_medium"
             android:backgroundTint="@color/Aquamarine"
             android:textColor="@color/white"
@@ -81,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Отмена"
+            android:textAllCaps="false"
             android:fontFamily="@font/ubuntu_medium"
             android:backgroundTint="#F44336"
             android:textColor="@color/white" />

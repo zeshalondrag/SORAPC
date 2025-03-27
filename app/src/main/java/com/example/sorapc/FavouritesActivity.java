@@ -59,6 +59,8 @@ public class FavouritesActivity extends AppCompatActivity {
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
+
+        listenForProductsChanges(); // Добавляем слушатель изменений в products
     }
 
     private void loadFavourites() {
@@ -85,6 +87,45 @@ public class FavouritesActivity extends AppCompatActivity {
                     empty_favourites_hint_text.setVisibility(favouritesList.isEmpty() ? View.VISIBLE : View.GONE);
                     favouritesRecyclerView.setVisibility(favouritesList.isEmpty() ? View.GONE : View.VISIBLE);
 
+                    syncQuantities(); // Синхронизируем quantity после загрузки избранного
+                    favouritesAdapter.notifyDataSetChanged();
+                });
+    }
+
+    private void syncQuantities() {
+        for (Product favouriteProduct : favouritesList) {
+            db.collection("products")
+                    .whereEqualTo("article", favouriteProduct.getArticle())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            Product updatedProduct = queryDocumentSnapshots.getDocuments().get(0).toObject(Product.class);
+                            favouriteProduct.setQuantity(updatedProduct.getQuantity());
+                            favouritesAdapter.notifyDataSetChanged();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Ошибка синхронизации количества: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private void listenForProductsChanges() {
+        db.collection("products")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Ошибка синхронизации товаров: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    for (QueryDocumentSnapshot document : value) {
+                        Product updatedProduct = document.toObject(Product.class);
+                        for (Product favouriteProduct : favouritesList) {
+                            if (favouriteProduct.getArticle().equals(updatedProduct.getArticle())) {
+                                favouriteProduct.setQuantity(updatedProduct.getQuantity());
+                            }
+                        }
+                    }
                     favouritesAdapter.notifyDataSetChanged();
                 });
     }

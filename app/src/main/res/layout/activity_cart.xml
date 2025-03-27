@@ -106,11 +106,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/Aquamarine"
             android:fontFamily="@font/ubuntu_medium"
             android:text="Перейти к оформлению"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="16sp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/checkout_hint_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Выберите товары, чтобы перейти к оформлению заказа"
+                android:fontFamily="@font/ubuntu_medium"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:paddingLeft="32dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/checkout_hint_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="0dp"
+                android:src="@drawable/information"
+                android:contentDescription="Иконка информации"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

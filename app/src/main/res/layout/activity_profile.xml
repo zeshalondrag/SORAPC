@@ -228,6 +228,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Изменить данные"
+                        android:textAllCaps="false"
                         android:fontFamily="@font/ubuntu_medium"
                         android:backgroundTint="@color/Aquamarine"
                         android:textColor="@color/white"
@@ -238,6 +239,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Избранное"
+                        android:textAllCaps="false"
                         android:fontFamily="@font/ubuntu_medium"
                         android:backgroundTint="@color/Aquamarine"
                         android:textColor="@color/white"/>
@@ -247,6 +249,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Выйти из аккаунта"
+                        android:textAllCaps="false"
                         android:fontFamily="@font/ubuntu_medium"
                         android:backgroundTint="#F44336"
                         android:textColor="@color/white"/>

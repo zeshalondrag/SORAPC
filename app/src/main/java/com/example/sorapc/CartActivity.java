@@ -1,13 +1,16 @@
 package com.example.sorapc;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,8 +29,9 @@ public class CartActivity extends AppCompatActivity {
     private RecyclerView cartRecyclerView;
     private CartAdapter cartAdapter;
     private List<Product> cartList;
-    private TextView itemsCountText, totalPriceText, emptyCartText, emptyCartHintText;
+    private TextView itemsCountText, totalPriceText, emptyCartText, emptyCartHintText, checkoutHintText;
     private Button checkoutButton;
+    private ImageView checkoutHintIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,8 @@ public class CartActivity extends AppCompatActivity {
         totalPriceText = findViewById(R.id.total_price_text);
         emptyCartText = findViewById(R.id.empty_cart_text);
         emptyCartHintText = findViewById(R.id.empty_cart_hint_text);
+        checkoutHintText = findViewById(R.id.checkout_hint_text);
+        checkoutHintIcon = findViewById(R.id.checkout_hint_icon);
         checkoutButton = findViewById(R.id.checkout_button);
 
         cartList = new ArrayList<>();
@@ -62,9 +68,11 @@ public class CartActivity extends AppCompatActivity {
 
         checkoutButton.setOnClickListener(v -> {
             if (cartList.isEmpty()) {
+                Toast.makeText(this, "Корзина пуста", Toast.LENGTH_SHORT).show();
                 return;
             }
             Intent intent = new Intent(this, CheckoutActivity.class);
+            intent.putExtra("cartItems", new ArrayList<>(cartList)); // Передаём список товаров
             startActivity(intent);
         });
 
@@ -111,8 +119,16 @@ public class CartActivity extends AppCompatActivity {
 
         emptyCartHintText.setVisibility(cartList.isEmpty() ? View.VISIBLE : View.GONE);
         emptyCartText.setVisibility(cartList.isEmpty() ? View.VISIBLE : View.GONE);
+        checkoutHintText.setVisibility(cartList.isEmpty() ? View.VISIBLE : View.GONE);
+        checkoutHintIcon.setVisibility(cartList.isEmpty() ? View.VISIBLE : View.GONE);
         cartRecyclerView.setVisibility(cartList.isEmpty() ? View.GONE : View.VISIBLE);
         checkoutButton.setEnabled(!cartList.isEmpty());
+
+        if (cartList.isEmpty()) {
+            checkoutButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.disabled_button_color)));
+        } else {
+            checkoutButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.Aquamarine)));
+        }
     }
 
     private void listenForFavoritesChanges() {

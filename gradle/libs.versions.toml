@@ -2,6 +2,7 @@
 agp = "8.8.1"
 androidActivation = "1.6.7"
 glideVersion = "4.16.0"
+itext7Core = "7.2.5"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -17,6 +18,7 @@ firebaseFirestore = "25.1.2"
 android-activation = { module = "com.sun.mail:android-activation", version.ref = "androidActivation" }
 android-mail = { module = "com.sun.mail:android-mail", version.ref = "androidActivation" }
 github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+itext7-core = { module = "com.itextpdf:itext7-core", version.ref = "itext7Core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

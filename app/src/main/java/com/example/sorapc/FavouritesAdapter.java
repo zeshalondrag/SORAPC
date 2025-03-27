@@ -1,6 +1,7 @@
 package com.example.sorapc;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -61,6 +63,17 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
         holder.favoriteIcon.setImageResource(R.drawable.heart_pressed);
 
+        // Проверяем количество товара
+        if (product.getQuantity() <= 0) {
+            holder.addToCartButton.setText("Нет товара");
+            holder.addToCartButton.setEnabled(false);
+            holder.addToCartButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.disabled_button_color)));
+        } else {
+            holder.addToCartButton.setText("В корзину");
+            holder.addToCartButton.setEnabled(true);
+            holder.addToCartButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.Aquamarine)));
+        }
+
         holder.favoriteIcon.setOnClickListener(v -> {
             if (auth.getCurrentUser() == null) {
                 Toast.makeText(context, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
@@ -85,11 +98,18 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
                 return;
             }
 
+            if (product.getQuantity() <= 0) {
+                Toast.makeText(context, "Товара нет в наличии", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String userId = auth.getCurrentUser().getUid();
+            product.setQuantity(1); // Устанавливаем количество 1 при добавлении в корзину
             db.collection("users").document(userId)
                     .collection("cart").document(product.getArticle())
                     .set(product)
                     .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(context, "Товар добавлен в корзину", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
