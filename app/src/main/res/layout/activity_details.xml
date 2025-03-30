@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailsActivity"
+    android:background="@color/EerieBlack"
+    android:orientation="vertical">
+
+    <include layout="@layout/header"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <RelativeLayout
+                android:id="@+id/details_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/product_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Имя товара"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textSize="32sp"
+                    android:textColor="@android:color/white"
+                    android:layout_centerHorizontal="true"/>
+
+                <ImageView
+                    android:id="@+id/back_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/baseline_arrow_back_ios_new_24"
+                    android:contentDescription="Назад"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_text"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/product_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:adjustViewBounds="true"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_gallery" />
+
+                    <ImageView
+                        android:id="@+id/favorite_icon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:src="@drawable/heart_unpressed"
+                        android:contentDescription="Добавить в избранное"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/product_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Цена: 100 000 ₽"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:paddingTop="8dp" />
+
+                <TextView
+                    android:id="@+id/product_article"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Артикул: 12345678"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="#666666"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp" />
+
+                <TextView
+                    android:id="@+id/product_availability"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Есть в наличии (5 шт)"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_text"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Описание"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/product_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Описание товара"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="#666666"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp" />
+
+                <TextView
+                    android:id="@+id/characteristics_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Характеристики ▼"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:paddingTop="16dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/characteristics_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingTop="4dp">
+
+                    <!-- Видеокарта -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Видеокарта"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/gpu_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Процессор -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Процессор"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/cpu_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Материнская плата -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Материнская плата"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/motherboard_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Охлаждение -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Охлаждение"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/cooling_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Оперативная память -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Оперативная память"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/ram_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Накопитель -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Накопитель"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/ssd_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Блок питания -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Блок питания"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/power_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/disabled_button_color"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Корпус -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Корпус"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:paddingTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/case_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Не указано"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:paddingTop="2dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Раздел отзывов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_text"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Отзывы"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+
+                <RatingBar
+                    android:id="@+id/rating_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="1.0"
+                    android:rating="0"
+                    android:layout_marginTop="8dp" />
+
+                <EditText
+                    android:id="@+id/review_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Оставьте ваш отзыв"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:textColorHint="#666666"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:layout_marginTop="8dp" />
+
+                <Button
+                    android:id="@+id/submit_review_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Отправить отзыв"
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/Aquamarine"
+                    android:layout_marginTop="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/reviews_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Кнопки "В корзину" и "Купить в один клик" -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/add_to_cart_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="В корзину"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/buy_now_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Купить в один клик"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

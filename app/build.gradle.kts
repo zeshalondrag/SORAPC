@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.sorapc"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.sorapc"
@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.github.glide)
     implementation(libs.android.mail)
     implementation(libs.android.activation)
+    implementation(libs.viewpager2)
+    implementation(libs.github.glide)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

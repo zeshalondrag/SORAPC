@@ -10,7 +10,7 @@
 
     <include layout="@layout/header"/>
 
-    <RelativeLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -19,34 +19,239 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
-            android:layout_centerInParent="true"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SORAPC"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:layout_gravity="center"/>
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/promotions_pager"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_marginBottom="16dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ваш надежный поставщик готовых ПК\nШирокий выбор мощных компьютеров\nдля работы и игр"
-                android:fontFamily="@font/ubuntu_medium"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_marginTop="16dp"/>
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_text"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Игровые ПК"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Компьютеры для геймеров"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/gaming_pc_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Подробнее"
+                        android:textAllCaps="false"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/Aquamarine" />
+
+                    <ImageView
+                        android:id="@+id/gaming_pc_image"
+                        android:layout_width="300dp"
+                        android:layout_height="250dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="Игровые ПК"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_text"
+                    android:padding="16dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Рабочие станции"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Решения для профессионалов"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/workstation_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Подробнее"
+                        android:layout_gravity="center"
+                        android:textAllCaps="false"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/Aquamarine" />
+
+                    <ImageView
+                        android:id="@+id/workstation_image"
+                        android:layout_width="300dp"
+                        android:layout_height="250dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="Рабочие станции"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginBottom="15dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Топ-3 популярных ПК"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textSize="18sp"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="8dp"/>
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/top_products_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_text"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Почему выбирают нас"
+                    android:fontFamily="@font/ubuntu_medium"
+                    android:textSize="18sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/icon_delivery"
+                            android:contentDescription="Быстрая доставка"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Быстрая доставка"
+                            android:fontFamily="@font/ubuntu_medium"
+                            android:textSize="11sp"
+                            android:textColor="#666666"
+                            android:paddingTop="5dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/icon_high_quality"
+                            android:contentDescription="Гарантия качества"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Гарантия качества"
+                            android:fontFamily="@font/ubuntu_medium"
+                            android:textSize="11sp"
+                            android:textColor="#666666"
+                            android:paddingTop="5dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/icon_24_7"
+                            android:contentDescription="Поддержка 24/7"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Поддержка 24/7"
+                            android:fontFamily="@font/ubuntu_medium"
+                            android:textSize="11sp"
+                            android:textColor="#666666"
+                            android:paddingTop="5dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
-
-    </RelativeLayout>
+    </ScrollView>
 
     <include layout="@layout/bottom_navigation"/>
 

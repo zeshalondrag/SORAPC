@@ -22,4 +22,7 @@
         <item name="android:background">@drawable/rounded_dialog</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+    <style name="RoundedImageView" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">5%</item>
+    </style>
 </resources>

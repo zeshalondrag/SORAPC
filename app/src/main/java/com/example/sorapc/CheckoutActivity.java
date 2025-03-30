@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -54,7 +55,8 @@ public class CheckoutActivity extends AppCompatActivity {
     private List<Product> checkoutList;
     private TextView itemsCountText, totalPriceText, commissionText, commissionAmountText, totalAmountText;
     private RadioGroup paymentMethodGroup;
-    private RadioButton paymentCard, paymentCash, termsCheckbox;
+    private RadioButton paymentCard, paymentCash;
+    private CheckBox termsCheckbox;
     private Button checkoutButton;
     private boolean isCardPayment = true;
     private FirebaseAuth auth;
@@ -111,9 +113,7 @@ public class CheckoutActivity extends AppCompatActivity {
             updateButtonState();
         });
 
-        checkoutButton.setOnClickListener(v -> {
-            processOrder();
-        });
+        checkoutButton.setOnClickListener(v -> processOrder());
 
         backIcon.setOnClickListener(v -> onBackPressed());
 
@@ -176,15 +176,20 @@ public class CheckoutActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                             Long currentQuantity = document.getLong("quantity");
+                            Long currentSalesCount = document.getLong("salesCount") != null ? document.getLong("salesCount") : 0L;
                             if (currentQuantity != null && currentQuantity >= quantityToReduce) {
                                 String productId = document.getId();
+                                // Обновляем количество и увеличиваем количество продаж
                                 db.collection("products").document(productId)
-                                        .update("quantity", currentQuantity - quantityToReduce)
+                                        .update(
+                                                "quantity", currentQuantity - quantityToReduce,
+                                                "salesCount", currentSalesCount + quantityToReduce
+                                        )
                                         .addOnSuccessListener(aVoid -> {
                                             checkAllProductsProcessed(userId, userEmail);
                                         })
                                         .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Ошибка обновления количества товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Ошибка обновления данных товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                         });
                             } else {
                                 Toast.makeText(this, "Недостаточно товара: " + product.getTitle(), Toast.LENGTH_SHORT).show();

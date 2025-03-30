@@ -1,6 +1,7 @@
 package com.example.sorapc;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,6 +128,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailsActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
         });
     }
 

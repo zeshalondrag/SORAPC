@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/top_product_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="center"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:contentDescription="Изображение продукта"
+        app:shapeAppearanceOverlay="@style/RoundedImageView"/>
+
+    <TextView
+        android:id="@+id/top_product_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Название продукта"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+</LinearLayout>

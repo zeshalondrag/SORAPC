@@ -33,6 +33,8 @@
         <activity android:name=".CatalogActivity" android:exported="false"/>
         <activity android:name=".CartActivity" android:exported="false"/>
         <activity android:name=".CheckoutActivity" android:exported="false"/>
+        <activity android:name=".DetailsActivity" android:exported="false"/>
+        <activity android:name=".SupportActivity" android:exported="false"/>
     </application>
 
 </manifest>

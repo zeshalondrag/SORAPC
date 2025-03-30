@@ -209,7 +209,7 @@
             android:textSize="16sp"
             android:enabled="false" />
 
-        <RadioButton
+        <CheckBox
             android:id="@+id/terms_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -45,9 +45,14 @@ public class BottomNavigation implements BottomNavigationView.OnNavigationItemSe
                 activity.finish();
             }
             return true;
+        } else if (itemId == R.id.bottom_support) {
+            if (!(activity instanceof SupportActivity)) {
+                Intent intent = new Intent(activity, SupportActivity.class);
+                activity.startActivity(intent);
+                activity.finish();
+            }
+            return true;
         }
-
-        // Поддержка
 
         return false;
     }
