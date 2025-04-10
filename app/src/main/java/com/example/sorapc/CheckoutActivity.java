@@ -2,12 +2,7 @@ package com.example.sorapc;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -25,11 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -61,6 +52,7 @@ public class CheckoutActivity extends AppCompatActivity {
     private boolean isCardPayment = true;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private int processedProducts = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,8 +154,11 @@ public class CheckoutActivity extends AppCompatActivity {
         String userEmail = auth.getCurrentUser().getEmail();
 
         if (checkoutList.isEmpty()) {
+            Toast.makeText(this, "Корзина пуста", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        processedProducts = 0;
 
         for (Product product : checkoutList) {
             String productArticle = product.getArticle();
@@ -179,27 +174,35 @@ public class CheckoutActivity extends AppCompatActivity {
                             Long currentSalesCount = document.getLong("salesCount") != null ? document.getLong("salesCount") : 0L;
                             if (currentQuantity != null && currentQuantity >= quantityToReduce) {
                                 String productId = document.getId();
-                                // Обновляем количество и увеличиваем количество продаж
                                 db.collection("products").document(productId)
                                         .update(
                                                 "quantity", currentQuantity - quantityToReduce,
                                                 "salesCount", currentSalesCount + quantityToReduce
                                         )
                                         .addOnSuccessListener(aVoid -> {
-                                            checkAllProductsProcessed(userId, userEmail);
+                                            synchronized (this) {
+                                                processedProducts++;
+                                                if (processedProducts == checkoutList.size()) {
+                                                    checkAllProductsProcessed(userId, userEmail);
+                                                }
+                                            }
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(this, "Ошибка обновления данных товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            finish();
                                         });
                             } else {
                                 Toast.makeText(this, "Недостаточно товара: " + product.getTitle(), Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                         } else {
                             Toast.makeText(this, "Товар не найден: " + product.getTitle(), Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
                     });
         }
     }
@@ -225,10 +228,14 @@ public class CheckoutActivity extends AppCompatActivity {
                     }
                     if (allProcessed) {
                         clearCart(userId, userEmail);
+                    } else {
+                        Toast.makeText(this, "Не удалось обработать заказ. Проверьте корзину.", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Ошибка проверки товаров: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
                 });
     }
 
@@ -241,141 +248,91 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void clearCart(String userId, String userEmail) {
-        db.collection("users").document(userId).collection("cart")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        document.getReference().delete();
-                    }
-                    generateAndSendReceipt(userEmail);
+        List<Product> orderedItems = new ArrayList<>(checkoutList);
+        long totalPrice = orderedItems.stream().mapToLong(product -> product.getPrice() * product.getQuantity()).sum();
+        long commission = isCardPayment ? (long) (totalPrice * 0.01) : 0;
+        long finalTotal = totalPrice + commission;
+
+        // Создаём заказ
+        Order order = new Order(
+                orderedItems,
+                totalPrice,
+                commission,
+                finalTotal,
+                new Date(),
+                getArticlesList()
+        );
+
+        // Сохраняем заказ в подколлекцию orders
+        db.collection("users").document(userId)
+                .collection("orders")
+                .add(order)
+                .addOnSuccessListener(documentReference -> {
+                    // После успешного сохранения заказа очищаем корзину
+                    db.collection("users").document(userId).collection("cart")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                    document.getReference().delete();
+                                }
+                                checkoutList.clear();
+                                checkoutAdapter.notifyDataSetChanged();
+                                sendElectronicReceipt(userEmail, orderedItems, totalPrice, commission, finalTotal);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Ошибка очистки корзины: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                finish();
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Ошибка очистки корзины: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Ошибка сохранения заказа: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
                 });
     }
 
-    private void generateAndSendReceipt(String userEmail) {
-        PdfDocument document = new PdfDocument();
-        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create(); // A4 размер (595x842 пикселей)
-        PdfDocument.Page page = document.startPage(pageInfo);
-        Canvas canvas = page.getCanvas();
-
-        // Определяем краски для текста и линий
-        Paint titlePaint = new Paint();
-        titlePaint.setColor(Color.parseColor("#1c1c1c")); // Aquamarine
-        titlePaint.setTextSize(24);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
-
-        Paint headerPaint = new Paint();
-        headerPaint.setColor(Color.BLACK);
-        headerPaint.setTextSize(16);
-        headerPaint.setTextAlign(Paint.Align.LEFT);
-
-        Paint textPaint = new Paint();
-        textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(12);
-        textPaint.setTextAlign(Paint.Align.LEFT);
-
-        Paint linePaint = new Paint();
-        linePaint.setColor(Color.parseColor("#1c1c1c")); // Aquamarine для линий
-        linePaint.setStrokeWidth(2);
-
-        Paint rightAlignPaint = new Paint();
-        rightAlignPaint.setColor(Color.BLACK);
-        rightAlignPaint.setTextSize(12);
-        rightAlignPaint.setTextAlign(Paint.Align.RIGHT);
-
-        Paint footerPaint = new Paint();
-        footerPaint.setColor(Color.GRAY);
-        footerPaint.setTextSize(10);
-        footerPaint.setTextAlign(Paint.Align.CENTER);
-
+    private void sendElectronicReceipt(String userEmail, List<Product> orderedItems, long totalPrice, long commission, long finalTotal) {
+        StringBuilder itemsHtml = new StringBuilder();
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator(' ');
         DecimalFormat decimalFormat = new DecimalFormat("#,### ₽", symbols);
 
-        int yPosition = 40;
-        int pageWidth = pageInfo.getPageWidth();
-        int margin = 40;
-        int contentWidth = pageWidth - 2 * margin;
-
-        canvas.drawText("SORAPC", pageWidth / 2, yPosition, titlePaint);
-        yPosition += 10;
-
-        canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, linePaint);
-        yPosition += 30;
-
-        canvas.drawText("Чек покупки", margin, yPosition, headerPaint);
-        yPosition += 20;
-        canvas.drawText("Дата: " + new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date()), margin, yPosition, textPaint);
-        yPosition += 15;
-        canvas.drawText("Пользователь: " + userEmail, margin, yPosition, textPaint);
-        yPosition += 25;
-
-        canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, linePaint);
-        yPosition += 15;
-
-        canvas.drawText("Товары:", margin, yPosition, headerPaint);
-        yPosition += 20;
-
-        long totalPrice = 0;
-        for (Product product : checkoutList) {
+        for (Product product : orderedItems) {
             long productTotal = product.getPrice() * product.getQuantity();
-            totalPrice += productTotal;
-
-            String productLine = product.getTitle() + " (x" + product.getQuantity() + ")";
-            if (titlePaint.measureText(productLine) > contentWidth - 100) {
-                productLine = productLine.substring(0, 30) + "...";
-            }
-            canvas.drawText(productLine, margin, yPosition, textPaint);
-
-            String priceText = decimalFormat.format(productTotal);
-            canvas.drawText(priceText, pageWidth - margin, yPosition, rightAlignPaint);
-            yPosition += 20;
+            itemsHtml.append("<p>")
+                    .append(product.getTitle())
+                    .append(" (x").append(product.getQuantity()).append("): ")
+                    .append(decimalFormat.format(productTotal))
+                    .append("</p>");
         }
 
-        yPosition += 5;
-        canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, linePaint);
-        yPosition += 20;
+        String date = new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
 
-        long commission = isCardPayment ? (long) (totalPrice * 0.01) : 0;
+        String htmlContent = "<html>" +
+                "<body style='font-family: Arial, sans-serif; color: #333; background-color: #f4f4f4; padding: 20px;'>" +
+                "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);'>" +
+                "<div style='background-color: #1c2526; color: #ffffff; padding: 20px; text-align: center; border-top-left-radius: 10px; border-top-right-radius: 10px;'>" +
+                "<h1 style='margin: 0; font-size: 24px;'>SORAPC</h1>" +
+                "</div>" +
+                "<div style='padding: 20px;'>" +
+                "<h2 style='color: #1c2526; font-size: 20px; margin-bottom: 15px;'>Чек покупки</h2>" +
+                "<p><strong>Дата:</strong> " + date + "</p>" +
+                "<p><strong>Пользователь:</strong> " + userEmail + "</p>" +
+                "<p><strong>Товары:</strong></p>" +
+                "<div style='background-color: #f9f9f9; padding: 15px; border-left: 4px solid #1c2526;'>" +
+                itemsHtml.toString() +
+                "</div>" +
+                "<p><strong>Сумма товаров:</strong> " + decimalFormat.format(totalPrice) + "</p>" +
+                "<p><strong>Комиссия:</strong> " + decimalFormat.format(commission) + "</p>" +
+                "<p><strong>Итого:</strong> " + decimalFormat.format(finalTotal) + "</p>" +
+                "</div>" +
+                "<div style='background-color: #f4f4f4; padding: 15px; text-align: center; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;'>" +
+                "<p style='color: #666; font-size: 12px; margin: 0;'>Свяжитесь с нами: <a href='mailto:sorapc.support@gmail.com' style='color: #1c2526;'>sorapc.support@gmail.com</a> | +7 (999) 123-45-67</p>" +
+                "<p style='color: #666; font-size: 12px; margin: 5px 0 0 0;'>© 2025 SORAPC. Все права защищены.</p>" +
+                "</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
 
-        canvas.drawText("Сумма товаров:", margin, yPosition, textPaint);
-        canvas.drawText(decimalFormat.format(totalPrice), pageWidth - margin, yPosition, rightAlignPaint);
-        yPosition += 15;
-
-        canvas.drawText("Комиссия:", margin, yPosition, textPaint);
-        canvas.drawText(decimalFormat.format(commission), pageWidth - margin, yPosition, rightAlignPaint);
-        yPosition += 20;
-
-        canvas.drawText("Итого:", margin, yPosition, textPaint);
-        canvas.drawText(decimalFormat.format(totalPrice + commission), pageWidth - margin, yPosition, rightAlignPaint);
-        yPosition += 20;
-
-        canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, linePaint);
-        yPosition += 30;
-
-        canvas.drawText("Спасибо за покупку в SORAPC!", pageWidth / 2, yPosition, footerPaint);
-        yPosition += 15;
-        canvas.drawText("Свяжитесь с нами: sorapc.store@gmail.com | +7 (999) 123-45-67", pageWidth / 2, yPosition, footerPaint);
-
-        document.finishPage(page);
-
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Receipt_" + System.currentTimeMillis() + ".pdf");
-        try {
-            document.writeTo(new FileOutputStream(file));
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Ошибка сохранения чека: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            document.close();
-            return;
-        }
-        document.close();
-
-        sendEmailWithAttachment(userEmail, file);
-    }
-
-    private void sendEmailWithAttachment(String userEmail, File file) {
         new Thread(() -> {
             try {
                 Properties properties = new Properties();
@@ -399,27 +356,32 @@ public class CheckoutActivity extends AppCompatActivity {
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
                 message.setSubject("Чек покупки");
 
-                MimeBodyPart messageBodyPart = new MimeBodyPart();
-                messageBodyPart.setText("Ваш чек покупки во вложении.");
-
-                MimeBodyPart attachmentPart = new MimeBodyPart();
-                attachmentPart.attachFile(file);
+                MimeBodyPart mimeBodyPart = new MimeBodyPart();
+                mimeBodyPart.setContent(htmlContent, "text/html; charset=utf-8");
 
                 MimeMultipart multipart = new MimeMultipart();
-                multipart.addBodyPart(messageBodyPart);
-                multipart.addBodyPart(attachmentPart);
+                multipart.addBodyPart(mimeBodyPart);
 
                 message.setContent(multipart);
 
                 Transport.send(message);
 
                 runOnUiThread(() -> {
+                    Intent intent = new Intent(CheckoutActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
                     finish();
                 });
 
-            } catch (MessagingException | IOException e) {
+            } catch (MessagingException e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Ошибка отправки чека: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Ошибка отправки чека: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(CheckoutActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
+                });
             }
         }).start();
     }

@@ -17,7 +17,7 @@ public class Product implements Serializable {
     private String ssd;
     private String title;
     private boolean isFavorite;
-    private int category;
+    private String category; // Изменено с int на String
     private int quantity;
     private long salesCount;
 
@@ -25,7 +25,7 @@ public class Product implements Serializable {
 
     public Product(String article, String caseName, String cooling, String cpu, String description,
                    String gpu, String img, String motherboard, String power, long price,
-                   String ram, String ssd, String title, boolean isFavorite, int category, int quantity, long salesCount) {
+                   String ram, String ssd, String title, boolean isFavorite, String category, int quantity, long salesCount) {
         this.article = article;
         this.caseName = caseName;
         this.cooling = cooling;
@@ -87,13 +87,12 @@ public class Product implements Serializable {
     public boolean isFavorite() { return isFavorite; }
     public void setFavorite(boolean favorite) { isFavorite = favorite; }
 
-    public int getCategory() { return category; }
-    public void setCategory(int category) { this.category = category; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
     public long getSalesCount() { return salesCount; }
-
     public void setSalesCount(long salesCount) { this.salesCount = salesCount; }
 }

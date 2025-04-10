@@ -1,5 +1,6 @@
 package com.example.sorapc;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -20,20 +21,23 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements ReviewAdapter.OnReviewActionListener {
     private TextView productTitle, productPrice, productArticle, productAvailability, productDescription;
     private TextView gpuText, cpuText, motherboardText, coolingText, ramText, ssdText, powerText, caseText;
-    private TextView characteristicsHeader;
-    private LinearLayout characteristicsContainer;
-    private ImageView productImage, favoriteIcon, backIcon;
+    private TextView characteristicsHeader, quantityText;
+    private LinearLayout characteristicsContainer, quantityLayout;
+    private ImageView productImage, favoriteIcon, backIcon, decreaseQuantityButton, increaseQuantityButton;
     private Button addToCartButton, buyNowButton, submitReviewButton;
     private RatingBar ratingBar;
     private EditText reviewInput;
@@ -43,6 +47,8 @@ public class DetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private boolean isCharacteristicsVisible = false;
     private List<Review> reviews = new ArrayList<>();
+    private Map<String, Product> cartItems;
+    private String productId; // Для хранения ID продукта в Firestore
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +90,13 @@ public class DetailsActivity extends AppCompatActivity {
         reviewInput = findViewById(R.id.review_input);
         submitReviewButton = findViewById(R.id.submit_review_button);
         reviewsList = findViewById(R.id.reviews_list);
+        quantityLayout = findViewById(R.id.quantity_layout);
+        decreaseQuantityButton = findViewById(R.id.decrease_quantity_button);
+        increaseQuantityButton = findViewById(R.id.increase_quantity_button);
+        quantityText = findViewById(R.id.quantity_text);
 
         reviewsList.setLayoutManager(new LinearLayoutManager(this));
-        ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
+        ReviewAdapter reviewAdapter = new ReviewAdapter(reviews, this); // Передаём this как OnReviewActionListener
         reviewsList.setAdapter(reviewAdapter);
 
         product = (Product) getIntent().getSerializableExtra("product");
@@ -96,9 +106,13 @@ public class DetailsActivity extends AppCompatActivity {
             return;
         }
 
+        cartItems = new HashMap<>();
+        loadCartItems();
+
         loadProductDetails();
         syncWithFirestore();
         loadReviews();
+        checkReviewEligibility();
 
         backIcon.setOnClickListener(v -> onBackPressed());
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
@@ -107,10 +121,264 @@ public class DetailsActivity extends AppCompatActivity {
         buyNowButton.setOnClickListener(v -> buyNow());
         submitReviewButton.setOnClickListener(v -> submitReview());
 
+        decreaseQuantityButton.setOnClickListener(v -> decreaseQuantity());
+        increaseQuantityButton.setOnClickListener(v -> increaseQuantity());
+
         View headerView = findViewById(R.id.header);
         if (headerView != null) {
             new Header(headerView, this);
         }
+    }
+
+    private void loadReviews() {
+        db.collection("products")
+                .whereEqualTo("article", product.getArticle())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot productDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        productId = productDoc.getId();
+
+                        db.collection("products").document(productId)
+                                .collection("reviews")
+                                .addSnapshotListener((value, error) -> {
+                                    if (error != null) {
+                                        Toast.makeText(this, "Ошибка загрузки отзывов: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    reviews.clear();
+                                    if (value != null) {
+                                        for (DocumentSnapshot doc : value) {
+                                            Review review = doc.toObject(Review.class);
+                                            review.setReviewId(doc.getId()); // Сохраняем ID документа отзыва
+                                            reviews.add(review);
+                                        }
+                                    }
+                                    reviewsList.getAdapter().notifyDataSetChanged();
+                                });
+                    } else {
+                        Toast.makeText(this, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void submitReview() {
+        String reviewText = reviewInput.getText().toString().trim();
+        float rating = ratingBar.getRating();
+        if (reviewText.isEmpty()) {
+            Toast.makeText(this, "Пожалуйста, напишите отзыв", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (rating == 0) {
+            Toast.makeText(this, "Пожалуйста, выберите рейтинг", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String userName = documentSnapshot.getString("name");
+                    if (userName == null || userName.isEmpty()) {
+                        userName = "Аноним";
+                    }
+
+                    Review review = new Review(userId, userName, reviewText, rating, new Date());
+                    db.collection("products")
+                            .whereEqualTo("article", product.getArticle())
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    DocumentSnapshot productDoc = queryDocumentSnapshots.getDocuments().get(0);
+                                    String productId = productDoc.getId();
+
+                                    db.collection("products").document(productId)
+                                            .collection("reviews")
+                                            .add(review)
+                                            .addOnSuccessListener(doc -> {
+                                                Toast.makeText(this, "Отзыв добавлен", Toast.LENGTH_SHORT).show();
+                                                reviewInput.setText("");
+                                                ratingBar.setRating(0);
+                                                ratingBar.setVisibility(View.GONE);
+                                                reviewInput.setVisibility(View.GONE);
+                                                submitReviewButton.setVisibility(View.GONE);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                } else {
+                                    Toast.makeText(this, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Ошибка получения имени пользователя: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    @Override
+    public void onEditReview(Review review, int position) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_edit_review);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        RatingBar editRatingBar = dialog.findViewById(R.id.edit_rating_bar);
+        EditText editReviewInput = dialog.findViewById(R.id.edit_review_input);
+        Button cancelButton = dialog.findViewById(R.id.cancel_button);
+        Button saveButton = dialog.findViewById(R.id.save_button);
+
+        // Предзаполняем данные
+        editRatingBar.setRating(review.getRating());
+        editReviewInput.setText(review.getText());
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        saveButton.setOnClickListener(v -> {
+            String newText = editReviewInput.getText().toString().trim();
+            float newRating = editRatingBar.getRating();
+
+            if (newText.isEmpty()) {
+                Toast.makeText(this, "Пожалуйста, напишите отзыв", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (newRating == 0) {
+                Toast.makeText(this, "Пожалуйста, выберите рейтинг", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Обновляем отзыв в Firestore
+            review.setText(newText);
+            review.setRating(newRating);
+            review.setDate(new Date()); // Обновляем дату
+
+            db.collection("products").document(productId)
+                    .collection("reviews")
+                    .document(review.getReviewId())
+                    .set(review)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Отзыв обновлён", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Ошибка обновления отзыва: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onDeleteReview(Review review, int position) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_delete_review);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Button cancelButton = dialog.findViewById(R.id.cancel_button);
+        Button deleteButton = dialog.findViewById(R.id.delete_button);
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        deleteButton.setOnClickListener(v -> {
+            // Удаляем отзыв из Firestore
+            db.collection("products").document(productId)
+                    .collection("reviews")
+                    .document(review.getReviewId())
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Отзыв удалён", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        // После удаления отзыва проверяем, может ли пользователь оставить новый отзыв
+                        checkReviewEligibility();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Ошибка удаления отзыва: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        });
+
+        dialog.show();
+    }
+
+    private void checkReviewEligibility() {
+        String userId = auth.getCurrentUser().getUid();
+
+        // Проверяем, покупал ли пользователь товар
+        db.collection("users").document(userId)
+                .collection("orders")
+                .whereArrayContains("articles", product.getArticle())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    boolean hasPurchased = !queryDocumentSnapshots.isEmpty();
+
+                    if (!hasPurchased) {
+                        ratingBar.setVisibility(View.GONE);
+                        reviewInput.setVisibility(View.GONE);
+                        submitReviewButton.setVisibility(View.GONE);
+                        Toast.makeText(this, "Вы можете оставить отзыв только после покупки товара", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Проверяем, оставлял ли пользователь уже отзыв
+                    db.collection("products")
+                            .whereEqualTo("article", product.getArticle())
+                            .get()
+                            .addOnSuccessListener(productSnapshots -> {
+                                if (!productSnapshots.isEmpty()) {
+                                    DocumentSnapshot productDoc = productSnapshots.getDocuments().get(0);
+                                    String productId = productDoc.getId();
+
+                                    db.collection("products").document(productId)
+                                            .collection("reviews")
+                                            .whereEqualTo("userId", userId)
+                                            .get()
+                                            .addOnSuccessListener(reviewSnapshots -> {
+                                                if (!reviewSnapshots.isEmpty()) {
+                                                    ratingBar.setVisibility(View.GONE);
+                                                    reviewInput.setVisibility(View.GONE);
+                                                    submitReviewButton.setVisibility(View.GONE);
+                                                    Toast.makeText(this, "Вы уже оставили отзыв на этот товар", Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    ratingBar.setVisibility(View.VISIBLE);
+                                                    reviewInput.setVisibility(View.VISIBLE);
+                                                    submitReviewButton.setVisibility(View.VISIBLE);
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(this, "Ошибка проверки отзывов: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Ошибка проверки заказов: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void loadCartItems() {
+        if (auth.getCurrentUser() == null) return;
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId)
+                .collection("cart")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Ошибка загрузки корзины: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    cartItems.clear();
+                    for (QueryDocumentSnapshot document : value) {
+                        Product cartProduct = document.toObject(Product.class);
+                        cartItems.put(cartProduct.getArticle(), cartProduct);
+                    }
+                    updateAddToCartButton();
+                });
     }
 
     private void loadProductDetails() {
@@ -194,93 +462,6 @@ public class DetailsActivity extends AppCompatActivity {
                 });
     }
 
-    private void loadReviews() {
-        db.collection("products")
-                .whereEqualTo("article", product.getArticle())
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot productDoc = queryDocumentSnapshots.getDocuments().get(0);
-                        String productId = productDoc.getId();
-
-                        db.collection("products").document(productId)
-                                .collection("reviews")
-                                .addSnapshotListener((value, error) -> {
-                                    if (error != null) {
-                                        Toast.makeText(this, "Ошибка загрузки отзывов: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    reviews.clear();
-                                    if (value != null) {
-                                        for (DocumentSnapshot doc : value) {
-                                            Review review = doc.toObject(Review.class);
-                                            reviews.add(review);
-                                        }
-                                    }
-                                    reviewsList.getAdapter().notifyDataSetChanged();
-                                });
-                    } else {
-                        Toast.makeText(this, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void submitReview() {
-        String reviewText = reviewInput.getText().toString().trim();
-        float rating = ratingBar.getRating();
-        if (reviewText.isEmpty()) {
-            Toast.makeText(this, "Пожалуйста, напишите отзыв", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (rating == 0) {
-            Toast.makeText(this, "Пожалуйста, выберите рейтинг", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String userId = auth.getCurrentUser().getUid();
-        db.collection("users").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    String userName = documentSnapshot.getString("name");
-                    if (userName == null || userName.isEmpty()) {
-                        userName = "Аноним";
-                    }
-
-                    Review review = new Review(userId, userName, reviewText, rating, new Date());
-                    db.collection("products")
-                            .whereEqualTo("article", product.getArticle())
-                            .get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                if (!queryDocumentSnapshots.isEmpty()) {
-                                    DocumentSnapshot productDoc = queryDocumentSnapshots.getDocuments().get(0);
-                                    String productId = productDoc.getId();
-
-                                    db.collection("products").document(productId)
-                                            .collection("reviews")
-                                            .add(review)
-                                            .addOnSuccessListener(doc -> {
-                                                Toast.makeText(this, "Отзыв добавлен", Toast.LENGTH_SHORT).show();
-                                                reviewInput.setText("");
-                                                ratingBar.setRating(0);
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
-                                } else {
-                                    Toast.makeText(this, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Ошибка поиска товара: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Ошибка получения имени пользователя: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-
     private void updateAvailability() {
         if (product.getQuantity() > 0) {
             productAvailability.setText("Есть в наличии (" + product.getQuantity() + " шт)");
@@ -292,12 +473,23 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void updateAddToCartButton() {
+        Product cartProduct = cartItems.get(product.getArticle());
+        if (cartProduct != null) {
+            addToCartButton.setVisibility(View.GONE);
+            quantityLayout.setVisibility(View.VISIBLE);
+            quantityText.setText(String.valueOf(cartProduct.getQuantity()));
+        } else {
+            addToCartButton.setVisibility(View.VISIBLE);
+            quantityLayout.setVisibility(View.GONE);
+        }
+
         if (product.getQuantity() <= 0) {
             addToCartButton.setText("Нет товара");
             addToCartButton.setEnabled(false);
             addToCartButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.disabled_button_color)));
             buyNowButton.setEnabled(false);
             buyNowButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.disabled_button_color)));
+            quantityLayout.setVisibility(View.GONE);
         } else {
             addToCartButton.setText("В корзину");
             addToCartButton.setEnabled(true);
@@ -323,7 +515,6 @@ public class DetailsActivity extends AppCompatActivity {
                         Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         } else {
-            // Добавляем в избранное
             db.collection("users").document(userId)
                     .collection("favorites").document(product.getArticle())
                     .set(product)
@@ -353,10 +544,100 @@ public class DetailsActivity extends AppCompatActivity {
                 .collection("cart").document(product.getArticle())
                 .set(product)
                 .addOnSuccessListener(aVoid -> {
+                    cartItems.put(product.getArticle(), product);
+                    addToCartButton.setVisibility(View.GONE);
+                    quantityLayout.setVisibility(View.VISIBLE);
+                    quantityText.setText(String.valueOf(product.getQuantity()));
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void decreaseQuantity() {
+        if (auth.getCurrentUser() == null) {
+            Toast.makeText(this, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Product cartItem = cartItems.get(product.getArticle());
+        if (cartItem != null) {
+            int quantity = cartItem.getQuantity();
+            if (quantity > 1) {
+                quantity--;
+                cartItem.setQuantity(quantity);
+                String userId = auth.getCurrentUser().getUid();
+                int finalQuantity = quantity;
+                db.collection("users").document(userId)
+                        .collection("cart").document(product.getArticle())
+                        .set(cartItem)
+                        .addOnSuccessListener(aVoid -> {
+                            quantityText.setText(String.valueOf(finalQuantity));
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                String userId = auth.getCurrentUser().getUid();
+                db.collection("users").document(userId)
+                        .collection("cart").document(product.getArticle())
+                        .delete()
+                        .addOnSuccessListener(aVoid -> {
+                            cartItems.remove(product.getArticle());
+                            addToCartButton.setVisibility(View.VISIBLE);
+                            quantityLayout.setVisibility(View.GONE);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+        }
+    }
+
+    private void increaseQuantity() {
+        if (auth.getCurrentUser() == null) {
+            Toast.makeText(this, "Пожалуйста, авторизуйтесь", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Product cartItem = cartItems.get(product.getArticle());
+        if (cartItem != null) {
+            String userId = auth.getCurrentUser().getUid();
+            db.collection("products")
+                    .whereEqualTo("article", product.getArticle())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            Long availableQuantity = queryDocumentSnapshots.getDocuments().get(0).getLong("quantity");
+                            if (availableQuantity != null) {
+                                int currentQuantity = cartItem.getQuantity();
+                                int newQuantity = currentQuantity + 1;
+
+                                if (newQuantity <= availableQuantity) {
+                                    cartItem.setQuantity(newQuantity);
+                                    db.collection("users").document(userId)
+                                            .collection("cart").document(product.getArticle())
+                                            .set(cartItem)
+                                            .addOnSuccessListener(aVoid -> {
+                                                quantityText.setText(String.valueOf(newQuantity));
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                } else {
+                                    Toast.makeText(this, "Недостаточно товара на складе", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(this, "Ошибка: не удалось получить доступное количество", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Ошибка проверки количества: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 
     private void buyNow() {

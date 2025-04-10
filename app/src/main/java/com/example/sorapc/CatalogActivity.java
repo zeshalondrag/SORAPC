@@ -18,7 +18,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CatalogActivity extends AppCompatActivity {
 
@@ -27,9 +29,11 @@ public class CatalogActivity extends AppCompatActivity {
     private RecyclerView productsRecyclerView;
     private ProductAdapter productAdapter;
     private List<Product> productList;
-    private List<String> categories;
+    private List<String> categoryTitles;
+    private Map<String, String> categoryMap;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private String selectedCategory; // Для хранения категории из Intent
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,10 @@ public class CatalogActivity extends AppCompatActivity {
         productsRecyclerView = findViewById(R.id.products_recycler_view);
 
         productList = new ArrayList<>();
+        categoryTitles = new ArrayList<>();
+        categoryMap = new HashMap<>();
+        categoryTitles.add("Все");
+        categoryMap.put("Все", "Все");
         productAdapter = new ProductAdapter(this, productList);
         productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         productsRecyclerView.setAdapter(productAdapter);
@@ -56,11 +64,12 @@ public class CatalogActivity extends AppCompatActivity {
         priceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         priceFilterSpinner.setAdapter(priceAdapter);
 
-        categories = new ArrayList<>();
-        categories.add("Все");
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryTitles);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categoryFilterSpinner.setAdapter(categoryAdapter);
+
+        // Получаем категорию из Intent
+        selectedCategory = getIntent().getStringExtra("category");
 
         loadCategories();
         loadProducts();
@@ -110,15 +119,30 @@ public class CatalogActivity extends AppCompatActivity {
         db.collection("category")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    categoryTitles.clear();
+                    categoryMap.clear();
+                    categoryTitles.add("Все");
+                    categoryMap.put("Все", "Все");
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String categoryId = document.getId();
                         String categoryTitle = document.getString("title");
                         if (categoryTitle != null) {
-                            categories.add(categoryTitle);
+                            categoryTitles.add(categoryTitle);
+                            categoryMap.put(categoryTitle, categoryId);
                         }
                     }
                     ((ArrayAdapter) categoryFilterSpinner.getAdapter()).notifyDataSetChanged();
+
+                    // После загрузки категорий устанавливаем выбранную категорию
+                    if (selectedCategory != null) {
+                        int position = categoryTitles.indexOf(selectedCategory);
+                        if (position != -1) {
+                            categoryFilterSpinner.setSelection(position);
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> {
+                    // Обработка ошибки
                 });
     }
 
@@ -138,6 +162,7 @@ public class CatalogActivity extends AppCompatActivity {
                     filterProducts();
                 })
                 .addOnFailureListener(e -> {
+                    // Обработка ошибки
                 });
     }
 
@@ -177,6 +202,7 @@ public class CatalogActivity extends AppCompatActivity {
                     productAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
+                    // Обработка ошибки
                 });
     }
 
@@ -204,7 +230,8 @@ public class CatalogActivity extends AppCompatActivity {
     private void filterProducts() {
         String query = searchEditText.getText().toString().trim();
         String priceSort = priceFilterSpinner.getSelectedItem() != null ? priceFilterSpinner.getSelectedItem().toString() : "По убыванию";
-        String category = categoryFilterSpinner.getSelectedItem() != null ? categoryFilterSpinner.getSelectedItem().toString() : "Все";
-        productAdapter.filter(query, priceSort, category);
+        String categoryTitle = categoryFilterSpinner.getSelectedItem() != null ? categoryFilterSpinner.getSelectedItem().toString() : "Все";
+        String categoryId = categoryMap.get(categoryTitle);
+        productAdapter.filter(query, priceSort, categoryId);
     }
 }

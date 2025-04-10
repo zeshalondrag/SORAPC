@@ -3,8 +3,9 @@ package com.example.sorapc;
 import java.util.Date;
 
 public class Review {
+    private String reviewId; // Новое поле для хранения ID документа отзыва
     private String userId;
-    private String userName; // Новое поле для имени пользователя
+    private String userName;
     private String text;
     private float rating;
     private Date date;
@@ -19,6 +20,8 @@ public class Review {
         this.date = date;
     }
 
+    public String getReviewId() { return reviewId; }
+    public void setReviewId(String reviewId) { this.reviewId = reviewId; }
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
     public String getUserName() { return userName; }

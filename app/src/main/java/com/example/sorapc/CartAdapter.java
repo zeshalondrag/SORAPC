@@ -127,19 +127,42 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 return;
             }
 
-            int quantity = product.getQuantity();
-            quantity++;
-            product.setQuantity(quantity);
-            holder.quantityText.setText(String.valueOf(quantity));
             String userId = auth.getCurrentUser().getUid();
-            db.collection("users").document(userId)
-                    .collection("cart").document(product.getArticle())
-                    .set(product)
-                    .addOnSuccessListener(aVoid -> {
-                        String updatedPrice = decimalFormat.format(product.getPrice() * product.getQuantity());
-                        holder.priceTextView.setText("Цена: " + updatedPrice);
+            // Проверяем доступное количество товара в Firestore
+            db.collection("products")
+                    .whereEqualTo("article", product.getArticle())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            Long availableQuantity = queryDocumentSnapshots.getDocuments().get(0).getLong("quantity");
+                            if (availableQuantity != null) {
+                                int currentQuantity = product.getQuantity();
+                                int newQuantity = currentQuantity + 1;
+
+                                if (newQuantity <= availableQuantity) {
+                                    // Если новое количество не превышает доступное, обновляем
+                                    product.setQuantity(newQuantity);
+                                    holder.quantityText.setText(String.valueOf(newQuantity));
+                                    db.collection("users").document(userId)
+                                            .collection("cart").document(product.getArticle())
+                                            .set(product)
+                                            .addOnSuccessListener(aVoid -> {
+                                                String updatedPrice = decimalFormat.format(product.getPrice() * product.getQuantity());
+                                                holder.priceTextView.setText("Цена: " + updatedPrice);
+                                            })
+                                            .addOnFailureListener(e -> Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                } else {
+                                    // Если превышает, показываем сообщение
+                                    Toast.makeText(context, "Недостаточно товара на складе", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(context, "Ошибка: не удалось получить доступное количество", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(context, "Товар не найден в базе данных", Toast.LENGTH_SHORT).show();
+                        }
                     })
-                    .addOnFailureListener(e -> Toast.makeText(context, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(context, "Ошибка проверки количества: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
     }
 

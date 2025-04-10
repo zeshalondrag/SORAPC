@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/rounded_text">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Удалить отзыв"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:paddingBottom="8dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Вы уверены, что хотите удалить ваш отзыв?"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:paddingBottom="16dp"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/Aquamarine"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отмена"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/disabled_button_color" />
+
+    </LinearLayout>
+
+</LinearLayout>

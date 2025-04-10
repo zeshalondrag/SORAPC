@@ -40,13 +40,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
             emailEt.setText(email);
         }
 
-        if (auth.getCurrentUser() == null) {
-            Toast.makeText(this, "Пожалуйста, авторизуйтесь для сброса пароля", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
-            finish();
-            return;
-        }
-
         sendLetterBtn.setOnClickListener(v -> sendResetEmail());
     }
 
@@ -68,7 +61,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        Toast.makeText(ResetPasswordActivity.this, "Неверная почта", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ResetPasswordActivity.this, "Пользователя с такой почтой не существует!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 

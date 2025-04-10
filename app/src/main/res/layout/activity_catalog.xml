@@ -20,14 +20,12 @@
             android:id="@+id/search_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Поиск по артикулу"
+            android:hint="Поиск по названию или артикулу"
             android:fontFamily="@font/ubuntu_medium"
             android:background="@drawable/rounded_text"
             android:padding="16dp"
             android:textColor="@color/white"
             android:textColorHint="#666666"
-            android:inputType="number"
-            android:digits="0123456789"
             android:singleLine="true" />
 
         <LinearLayout

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/EerieBlack">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/edit_product_title"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Название товара"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_image_url"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="URL картинки товара"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="textUri"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_price"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Цена"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="number"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_article"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Артикул (автогенерация)"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="number"
+                android:enabled="false"
+                android:layout_marginTop="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinner_product_category"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/rounded_text"
+                android:paddingLeft="20dp"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Количество товара"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="number"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_description"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Описание"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="textMultiLine"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_gpu"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Видеокарта"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_cpu"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Процессор"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_motherboard"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Материнская плата"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_cooling"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Охлаждение"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_ram"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Оперативная память"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_ssd"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Накопитель"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_power"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Блок питания"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_product_case"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Корпус"
+                android:fontFamily="@font/ubuntu_medium"
+                android:paddingLeft="20dp"
+                android:background="@drawable/rounded_text"
+                android:inputType="text"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="12dp">
+
+        <Button
+            android:id="@+id/button_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Подтвердить добавление"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:backgroundTint="@color/Aquamarine"
+            android:textColor="@color/white"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/button_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отмена"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:backgroundTint="#F44336"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

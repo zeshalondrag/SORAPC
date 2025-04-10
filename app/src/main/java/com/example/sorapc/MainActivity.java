@@ -53,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
         gamingPcButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CatalogActivity.class);
+            intent.putExtra("category", "Игровые ПК");
             startActivity(intent);
         });
 
         workstationButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CatalogActivity.class);
+            intent.putExtra("category", "Рабочие станции");
             startActivity(intent);
         });
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/EerieBlack">
+
+    <TextView
+        android:id="@+id/confirm_delete_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ubuntu_medium"
+        android:text="Вы уверены, что хотите удалить товар?"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:paddingBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="12dp">
+
+        <Button
+            android:id="@+id/button_delete_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:backgroundTint="#F44336"
+            android:textColor="@color/white"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/button_delete_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отмена"
+            android:textAllCaps="false"
+            android:fontFamily="@font/ubuntu_medium"
+            android:backgroundTint="@color/Aquamarine"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>
