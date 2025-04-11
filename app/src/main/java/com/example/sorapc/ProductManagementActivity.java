@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class PanelAdminActivity extends AppCompatActivity implements AdminProductAdapter.OnEditProductListener, AdminProductAdapter.OnDeleteProductListener {
+public class ProductManagementActivity extends AppCompatActivity implements AdminProductAdapter.OnEditProductListener, AdminProductAdapter.OnDeleteProductListener {
     private ImageView backIcon;
     private EditText searchEditText;
     private Button addProductButton;
@@ -41,7 +41,7 @@ public class PanelAdminActivity extends AppCompatActivity implements AdminProduc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_panel_administration);
+        setContentView(R.layout.activity_product_management);
 
         db = FirebaseFirestore.getInstance();
 
@@ -53,7 +53,7 @@ public class PanelAdminActivity extends AppCompatActivity implements AdminProduc
         productList = new ArrayList<>();
         categoryTitles = new ArrayList<>();
         categoryMap = new HashMap<>();
-        productAdapter = new AdminProductAdapter(this, productList, this, this); // Передаём this как OnEditProductListener и OnDeleteProductListener
+        productAdapter = new AdminProductAdapter(this, productList, this, this);
         productsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         productsRecyclerView.setAdapter(productAdapter);
 

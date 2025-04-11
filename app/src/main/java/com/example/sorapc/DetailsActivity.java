@@ -96,7 +96,7 @@ public class DetailsActivity extends AppCompatActivity implements ReviewAdapter.
         quantityText = findViewById(R.id.quantity_text);
 
         reviewsList.setLayoutManager(new LinearLayoutManager(this));
-        ReviewAdapter reviewAdapter = new ReviewAdapter(reviews, this); // Передаём this как OnReviewActionListener
+        ReviewAdapter reviewAdapter = new ReviewAdapter(this, reviews, this); // Передаём this как Context и OnReviewActionListener
         reviewsList.setAdapter(reviewAdapter);
 
         product = (Product) getIntent().getSerializableExtra("product");
@@ -151,6 +151,7 @@ public class DetailsActivity extends AppCompatActivity implements ReviewAdapter.
                                         for (DocumentSnapshot doc : value) {
                                             Review review = doc.toObject(Review.class);
                                             review.setReviewId(doc.getId()); // Сохраняем ID документа отзыва
+                                            review.setProductId(productId); // Сохраняем ID продукта
                                             reviews.add(review);
                                         }
                                     }

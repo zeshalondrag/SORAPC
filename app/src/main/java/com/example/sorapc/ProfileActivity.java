@@ -622,7 +622,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void openAdminPanel() {
-        Intent intent = new Intent(ProfileActivity.this, PanelAdminActivity.class);
+        Intent intent = new Intent(ProfileActivity.this, AdminPanelActivity.class);
         startActivity(intent);
     }
 

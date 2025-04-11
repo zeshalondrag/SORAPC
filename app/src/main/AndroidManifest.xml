@@ -35,7 +35,11 @@
         <activity android:name=".CheckoutActivity" android:exported="false"/>
         <activity android:name=".DetailsActivity" android:exported="false"/>
         <activity android:name=".SupportActivity" android:exported="false"/>
-        <activity android:name=".PanelAdminActivity" android:exported="false"/>
+        <activity android:name=".AdminPanelActivity" android:exported="false"/>
+        <activity android:name=".ProductManagementActivity" android:exported="false"/>
+        <activity android:name=".ClientManagementActivity" android:exported="false"/>
+        <activity android:name=".CategoryManagementActivity" android:exported="false"/>
+        <activity android:name=".ReviewManagementActivity" android:exported="false"/>
         <activity android:name=".OrdersHistoryActivity" android:exported="false"/>
     </application>
 

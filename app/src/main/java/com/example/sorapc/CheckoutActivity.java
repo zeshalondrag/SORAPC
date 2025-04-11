@@ -4,11 +4,15 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -45,14 +50,19 @@ public class CheckoutActivity extends AppCompatActivity {
     private CheckoutAdapter checkoutAdapter;
     private List<Product> checkoutList;
     private TextView itemsCountText, totalPriceText, commissionText, commissionAmountText, totalAmountText;
+    private LinearLayout noCardsContainer; // Обновляем на контейнер
     private RadioGroup paymentMethodGroup;
     private RadioButton paymentCard, paymentCash;
     private CheckBox termsCheckbox;
     private Button checkoutButton;
+    private Spinner cardSpinner;
+    private ImageView priceFilterIcon;
     private boolean isCardPayment = true;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private int processedProducts = 0;
+    private List<Card> cards = new ArrayList<>();
+    private Card selectedCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +92,9 @@ public class CheckoutActivity extends AppCompatActivity {
         paymentCash = findViewById(R.id.payment_cash);
         termsCheckbox = findViewById(R.id.terms_checkbox);
         checkoutButton = findViewById(R.id.checkout_button);
+        cardSpinner = findViewById(R.id.card_spinner);
+        noCardsContainer = findViewById(R.id.no_cards_container); // Инициализируем контейнер
+        priceFilterIcon = findViewById(R.id.price_filter_icon);
 
         checkoutList = (ArrayList<Product>) getIntent().getSerializableExtra("cartItems");
         if (checkoutList == null) {
@@ -92,25 +105,103 @@ public class CheckoutActivity extends AppCompatActivity {
         checkoutRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         checkoutRecyclerView.setAdapter(checkoutAdapter);
 
+        loadCards();
+
         updateButtonState();
         updateSummary();
 
         paymentMethodGroup.setOnCheckedChangeListener((group, checkedId) -> {
             isCardPayment = checkedId == R.id.payment_card;
+            updateCardSelectionVisibility();
             updateSummary();
         });
 
         termsCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            checkoutButton.setEnabled(isChecked);
+            checkoutButton.setEnabled(isChecked && (!isCardPayment || !cards.isEmpty()));
             updateButtonState();
         });
 
-        checkoutButton.setOnClickListener(v -> processOrder());
+        cardSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCard = cards.get(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedCard = null;
+            }
+        });
+
+        checkoutButton.setOnClickListener(v -> {
+            if (isCardPayment && selectedCard == null) {
+                Toast.makeText(this, "Пожалуйста, выберите карту для оплаты", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            processOrder();
+        });
 
         backIcon.setOnClickListener(v -> onBackPressed());
 
         View headerView = findViewById(R.id.header);
         new Header(headerView, this);
+    }
+
+    private void loadCards() {
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId)
+                .collection("cards")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    cards.clear();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Card card = document.toObject(Card.class);
+                        card.setCardId(document.getId());
+                        cards.add(card);
+                    }
+                    updateCardSelectionVisibility();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Ошибка загрузки карт: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void updateCardSelectionVisibility() {
+        if (isCardPayment) {
+            if (cards.isEmpty()) {
+                noCardsContainer.setVisibility(View.VISIBLE); // Показываем контейнер с иконкой и текстом
+                cardSpinner.setVisibility(View.GONE);
+                priceFilterIcon.setVisibility(View.GONE);
+                checkoutButton.setEnabled(false);
+            } else {
+                noCardsContainer.setVisibility(View.GONE); // Скрываем контейнер
+                cardSpinner.setVisibility(View.VISIBLE);
+                priceFilterIcon.setVisibility(View.VISIBLE);
+
+                List<String> cardDisplayList = new ArrayList<>();
+                for (Card card : cards) {
+                    String lastFourDigits = card.getCardNumber().substring(card.getCardNumber().length() - 4);
+                    cardDisplayList.add("Карта **** " + lastFourDigits);
+                }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, cardDisplayList);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                cardSpinner.setAdapter(adapter);
+
+                if (!cards.isEmpty()) {
+                    selectedCard = cards.get(0);
+                    cardSpinner.setSelection(0);
+                }
+
+                checkoutButton.setEnabled(termsCheckbox.isChecked());
+            }
+        } else {
+            noCardsContainer.setVisibility(View.GONE); // Скрываем контейнер
+            cardSpinner.setVisibility(View.GONE);
+            priceFilterIcon.setVisibility(View.GONE);
+            checkoutButton.setEnabled(termsCheckbox.isChecked());
+        }
+        updateButtonState();
     }
 
     private void updateSummary() {
@@ -253,7 +344,6 @@ public class CheckoutActivity extends AppCompatActivity {
         long commission = isCardPayment ? (long) (totalPrice * 0.01) : 0;
         long finalTotal = totalPrice + commission;
 
-        // Создаём заказ
         Order order = new Order(
                 orderedItems,
                 totalPrice,
@@ -263,12 +353,10 @@ public class CheckoutActivity extends AppCompatActivity {
                 getArticlesList()
         );
 
-        // Сохраняем заказ в подколлекцию orders
         db.collection("users").document(userId)
                 .collection("orders")
                 .add(order)
                 .addOnSuccessListener(documentReference -> {
-                    // После успешного сохранения заказа очищаем корзину
                     db.collection("users").document(userId).collection("cart")
                             .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -307,6 +395,13 @@ public class CheckoutActivity extends AppCompatActivity {
 
         String date = new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
 
+        String paymentMethod = isCardPayment ? "Картой" : "Наличными";
+        String cardDetails = "";
+        if (isCardPayment && selectedCard != null) {
+            String lastFourDigits = selectedCard.getCardNumber().substring(selectedCard.getCardNumber().length() - 4);
+            cardDetails = "<p><strong>Карта:</strong> **** " + lastFourDigits + "</p>";
+        }
+
         String htmlContent = "<html>" +
                 "<body style='font-family: Arial, sans-serif; color: #333; background-color: #f4f4f4; padding: 20px;'>" +
                 "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);'>" +
@@ -317,6 +412,8 @@ public class CheckoutActivity extends AppCompatActivity {
                 "<h2 style='color: #1c2526; font-size: 20px; margin-bottom: 15px;'>Чек покупки</h2>" +
                 "<p><strong>Дата:</strong> " + date + "</p>" +
                 "<p><strong>Пользователь:</strong> " + userEmail + "</p>" +
+                "<p><strong>Способ оплаты:</strong> " + paymentMethod + "</p>" +
+                cardDetails +
                 "<p><strong>Товары:</strong></p>" +
                 "<div style='background-color: #f9f9f9; padding: 15px; border-left: 4px solid #1c2526;'>" +
                 itemsHtml.toString() +

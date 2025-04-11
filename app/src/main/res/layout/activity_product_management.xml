@@ -4,7 +4,7 @@
     android:id="@+id/panel_admin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PanelAdminActivity"
+    tools:context=".ProductManagementActivity"
     android:background="@color/EerieBlack"
     android:orientation="vertical">
 
