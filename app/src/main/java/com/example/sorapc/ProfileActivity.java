@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar; // Импортируем Calendar
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -405,22 +406,51 @@ public class ProfileActivity extends AppCompatActivity {
             String expiryDate = cardExpiryInput.getText().toString().trim();
             String cvv = cardCvvInput.getText().toString().trim();
 
-            // Валидация
+            // Валидация номера карты
             if (cardNumber.replaceAll(" ", "").length() != 16) {
                 Toast.makeText(this, "Номер карты должен содержать 16 цифр", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Валидация срока действия
             if (!expiryDate.matches("^(0[1-9]|1[0-2])/\\d{2}$")) {
                 Toast.makeText(this, "Неверный формат срока действия (MM/YY)", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Извлекаем месяц и год
+            String[] expiryParts = expiryDate.split("/");
+            int month = Integer.parseInt(expiryParts[0]);
+            int year = Integer.parseInt(expiryParts[1]);
+
+            // Получаем текущую дату
+            Calendar calendar = Calendar.getInstance();
+            int currentYear = calendar.get(Calendar.YEAR);
+            int currentMonth = calendar.get(Calendar.MONTH) + 1; // Месяцы в Calendar начинаются с 0, добавляем 1
+
+            // Приводим год к полному формату (например, 25 -> 2025)
+            year += 2000;
+
+            // Проверка года: должен быть в диапазоне от текущего года до текущего года + 10
+            int maxYear = currentYear + 10;
+            if (year < currentYear || year > maxYear) {
+                Toast.makeText(this, "Год должен быть в диапазоне от " + currentYear + " до " + maxYear, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Проверка, не истёк ли срок действия карты
+            if (year == currentYear && month < currentMonth) {
+                Toast.makeText(this, "Срок действия карты истёк", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Валидация CVV
             if (!cvv.matches("^\\d{3}$")) {
                 Toast.makeText(this, "CVV/CVC должен содержать 3 цифры", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Если все проверки пройдены, добавляем карту
             Card card = new Card(cardNumber, expiryDate, cvv);
             String userId = auth.getCurrentUser().getUid();
             db.collection("users").document(userId)

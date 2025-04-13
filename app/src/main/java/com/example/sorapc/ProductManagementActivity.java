@@ -102,6 +102,113 @@ public class ProductManagementActivity extends AppCompatActivity implements Admi
                 });
     }
 
+    private boolean validateProductInput(String title, String imageUrl, String priceStr, String article,
+                                         String categoryId, String quantityStr, String description,
+                                         String gpu, String cpu, String motherboard, String cooling,
+                                         String ram, String ssd, String power, String caseName,
+                                         EditText editTitle, EditText editPrice, EditText editArticle,
+                                         EditText editQuantity, EditText editDescription, EditText editGpu,
+                                         EditText editCpu, EditText editMotherboard, EditText editCooling,
+                                         EditText editRam, EditText editSsd, EditText editPower, EditText editCase) {
+        // Проверка на пустые поля (кроме imageUrl)
+        if (title.isEmpty()) {
+            editTitle.setError("Введите название товара");
+            editTitle.requestFocus();
+            return false;
+        }
+        if (article.isEmpty()) {
+            editArticle.setError("Введите артикул");
+            editArticle.requestFocus();
+            return false;
+        }
+        if (categoryId == null) {
+            Toast.makeText(this, "Выберите категорию", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (quantityStr.isEmpty()) {
+            editQuantity.setError("Введите количество");
+            editQuantity.requestFocus();
+            return false;
+        }
+        if (description.isEmpty()) {
+            editDescription.setError("Введите описание");
+            editDescription.requestFocus();
+            return false;
+        }
+        if (gpu.isEmpty()) {
+            editGpu.setError("Введите данные о GPU");
+            editGpu.requestFocus();
+            return false;
+        }
+        if (cpu.isEmpty()) {
+            editCpu.setError("Введите данные о CPU");
+            editCpu.requestFocus();
+            return false;
+        }
+        if (motherboard.isEmpty()) {
+            editMotherboard.setError("Введите данные о материнской плате");
+            editMotherboard.requestFocus();
+            return false;
+        }
+        if (cooling.isEmpty()) {
+            editCooling.setError("Введите данные о системе охлаждения");
+            editCooling.requestFocus();
+            return false;
+        }
+        if (ram.isEmpty()) {
+            editRam.setError("Введите данные о RAM");
+            editRam.requestFocus();
+            return false;
+        }
+        if (ssd.isEmpty()) {
+            editSsd.setError("Введите данные о SSD");
+            editSsd.requestFocus();
+            return false;
+        }
+        if (power.isEmpty()) {
+            editPower.setError("Введите данные о блоке питания");
+            editPower.requestFocus();
+            return false;
+        }
+        if (caseName.isEmpty()) {
+            editCase.setError("Введите данные о корпусе");
+            editCase.requestFocus();
+            return false;
+        }
+
+        // Проверка цены
+        long price;
+        try {
+            price = Long.parseLong(priceStr);
+            if (price <= 0) {
+                editPrice.setError("Цена должна быть больше 0");
+                editPrice.requestFocus();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            editPrice.setError("Цена должна быть числом");
+            editPrice.requestFocus();
+            return false;
+        }
+
+        // Проверка количества
+        int quantity;
+        try {
+            quantity = Integer.parseInt(quantityStr);
+            if (quantity < 0) {
+                editQuantity.setError("Количество не может быть отрицательным");
+                editQuantity.requestFocus();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            editQuantity.setError("Количество должно быть числом");
+            editQuantity.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
     private void showAddProductDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dialog_add_product, null);
@@ -162,23 +269,16 @@ public class ProductManagementActivity extends AppCompatActivity implements Admi
             String power = editPower.getText().toString().trim();
             String caseName = editCase.getText().toString().trim();
 
-            if (title.isEmpty() || imageUrl.isEmpty() || priceStr.isEmpty() || article.isEmpty() ||
-                    categoryId == null || quantityStr.isEmpty() || description.isEmpty() || gpu.isEmpty() ||
-                    cpu.isEmpty() || motherboard.isEmpty() || cooling.isEmpty() || ram.isEmpty() ||
-                    ssd.isEmpty() || power.isEmpty() || caseName.isEmpty()) {
-                Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();
+            // Валидация
+            if (!validateProductInput(title, imageUrl, priceStr, article, categoryId, quantityStr, description,
+                    gpu, cpu, motherboard, cooling, ram, ssd, power, caseName,
+                    editTitle, editPrice, editArticle, editQuantity, editDescription,
+                    editGpu, editCpu, editMotherboard, editCooling, editRam, editSsd, editPower, editCase)) {
                 return;
             }
 
-            long price;
-            int quantity;
-            try {
-                price = Long.parseLong(priceStr);
-                quantity = Integer.parseInt(quantityStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Цена и количество должны быть числами", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            long price = Long.parseLong(priceStr);
+            int quantity = Integer.parseInt(quantityStr);
 
             Product product = new Product(
                     article, caseName, cooling, cpu, description, gpu, imageUrl, motherboard,
@@ -284,23 +384,16 @@ public class ProductManagementActivity extends AppCompatActivity implements Admi
             String power = editPower.getText().toString().trim();
             String caseName = editCase.getText().toString().trim();
 
-            if (title.isEmpty() || imageUrl.isEmpty() || priceStr.isEmpty() || article.isEmpty() ||
-                    categoryId == null || quantityStr.isEmpty() || description.isEmpty() || gpu.isEmpty() ||
-                    cpu.isEmpty() || motherboard.isEmpty() || cooling.isEmpty() || ram.isEmpty() ||
-                    ssd.isEmpty() || power.isEmpty() || caseName.isEmpty()) {
-                Toast.makeText(this, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();
+            // Валидация
+            if (!validateProductInput(title, imageUrl, priceStr, article, categoryId, quantityStr, description,
+                    gpu, cpu, motherboard, cooling, ram, ssd, power, caseName,
+                    editTitle, editPrice, editArticle, editQuantity, editDescription,
+                    editGpu, editCpu, editMotherboard, editCooling, editRam, editSsd, editPower, editCase)) {
                 return;
             }
 
-            long price;
-            int quantity;
-            try {
-                price = Long.parseLong(priceStr);
-                quantity = Integer.parseInt(quantityStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Цена и количество должны быть числами", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            long price = Long.parseLong(priceStr);
+            int quantity = Integer.parseInt(quantityStr);
 
             Product updatedProduct = new Product(
                     article, caseName, cooling, cpu, description, gpu, imageUrl, motherboard,

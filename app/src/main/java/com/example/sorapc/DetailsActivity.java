@@ -319,7 +319,6 @@ public class DetailsActivity extends AppCompatActivity implements ReviewAdapter.
                         ratingBar.setVisibility(View.GONE);
                         reviewInput.setVisibility(View.GONE);
                         submitReviewButton.setVisibility(View.GONE);
-                        Toast.makeText(this, "Вы можете оставить отзыв только после покупки товара", Toast.LENGTH_LONG).show();
                         return;
                     }
 

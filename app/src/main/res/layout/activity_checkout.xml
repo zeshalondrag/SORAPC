@@ -119,7 +119,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/price_filter_icon"
                     android:visibility="gone"
-                    android:background="@android:drawable/edit_text"
+                    android:background="@drawable/rounded_text"
                     android:spinnerMode="dropdown" />
 
                 <!-- Иконка стрелочки -->

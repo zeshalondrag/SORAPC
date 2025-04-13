@@ -3,7 +3,9 @@ package com.example.sorapc;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String generatedCode;
     private Map<String, Object> userData;
     private String email;
+    private boolean isPhoneFormatting = false; // Флаг для предотвращения рекурсии в TextWatcher
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +58,58 @@ public class RegisterActivity extends AppCompatActivity {
         Button registerBtn = findViewById(R.id.register_btn);
         TextView goToLogin = findViewById(R.id.go_to_auth_activitys);
 
+        // Настройка форматирования номера телефона
+        setupPhoneNumberFormatting();
+
         registerBtn.setOnClickListener(v -> validateAndRegisterUser());
 
         goToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
+        });
+    }
+
+    private void setupPhoneNumberFormatting() {
+        phoneEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isPhoneFormatting) return; // Предотвращаем рекурсию
+
+                isPhoneFormatting = true;
+                String input = s.toString().trim();
+
+                // Удаляем все нецифровые символы, кроме первого символа, если это "+"
+                String digits = input.replaceAll("[^0-9+]", "");
+                if (digits.isEmpty()) {
+                    phoneEt.setText("");
+                    isPhoneFormatting = false;
+                    return;
+                }
+
+                // Если строка начинается с "+", оставляем его
+                if (!digits.startsWith("+")) {
+                    // Если пользователь ввёл только цифры, добавляем "+7"
+                    digits = "+7" + digits;
+                } else if (digits.startsWith("+") && !digits.startsWith("+7")) {
+                    // Если пользователь ввёл "+", но не "+7", заменяем на "+7"
+                    digits = "+7" + digits.substring(1);
+                }
+
+                // Ограничиваем длину номера (например, +7 и 10 цифр)
+                if (digits.length() > 12) {
+                    digits = digits.substring(0, 12);
+                }
+
+                phoneEt.setText(digits);
+                phoneEt.setSelection(digits.length()); // Устанавливаем курсор в конец
+                isPhoneFormatting = false;
+            }
         });
     }
 
@@ -71,33 +121,67 @@ public class RegisterActivity extends AppCompatActivity {
         String phone = phoneEt.getText().toString().trim();
         String password = passwordEt.getText().toString().trim();
 
+        // Проверка на пустые поля
         if (TextUtils.isEmpty(surname)) {
             surnameEt.setError("Введите фамилию");
+            surnameEt.requestFocus();
             return;
         }
+
         if (TextUtils.isEmpty(name)) {
             nameEt.setError("Введите имя");
+            nameEt.requestFocus();
             return;
         }
+
+        // Отчество может быть пустым, но если оно заполнено, проверяем его
+        if (!TextUtils.isEmpty(middlename) && middlename.length() < 2) {
+            middlenameEt.setError("Отчество должно содержать минимум 2 символа");
+            middlenameEt.requestFocus();
+            return;
+        }
+
         if (TextUtils.isEmpty(email)) {
             emailEt.setError("Введите email");
+            emailEt.requestFocus();
             return;
         }
+
+        // Проверка на наличие символа "@" в email
+        if (!email.contains("@")) {
+            emailEt.setError("Email должен содержать символ @");
+            emailEt.requestFocus();
+            return;
+        }
+
         if (TextUtils.isEmpty(phone)) {
             phoneEt.setError("Введите номер телефона");
+            phoneEt.requestFocus();
             return;
         }
+
+        // Проверка длины номера телефона (должен быть +7 и 10 цифр, всего 12 символов)
+        if (phone.length() != 12 || !phone.startsWith("+7")) {
+            phoneEt.setError("Номер телефона должен начинаться с +7 и содержать 10 цифр");
+            phoneEt.requestFocus();
+            return;
+        }
+
         if (TextUtils.isEmpty(password)) {
             passwordEt.setError("Введите пароль");
+            passwordEt.requestFocus();
             return;
         }
+
         if (password.length() < 6) {
             passwordEt.setError("Пароль должен быть не менее 6 символов");
+            passwordEt.requestFocus();
             return;
         }
 
         if (!isValidPassword(password)) {
             passwordEt.setError("Пароль должен содержать минимум 1 заглавную букву и 1 цифру");
+            passwordEt.requestFocus();
             return;
         }
 
