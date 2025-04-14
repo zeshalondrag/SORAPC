@@ -32,6 +32,48 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+/**
+ * Класс RegisterActivity представляет собой активность для регистрации новых пользователей в приложении SORAPC.
+ *
+ * Основное назначение:
+ * - Предоставление интерфейса для заполнения данных пользователя, их проверки и регистрации.
+ * - Отправка кода подтверждения на электронную почту пользователя для завершения регистрации.
+ *
+ * Основные функции:
+ * - Валидация данных, введённых пользователем, таких как фамилия, имя, email, телефон и пароль.
+ * - Проверка наличия пользователя с указанным email в базе данных Firebase Firestore.
+ * - Регистрация пользователя через Firebase Authentication.
+ * - Отправка кода подтверждения на email пользователя через SMTP.
+ * - Завершение регистрации после ввода правильного кода подтверждения.
+ *
+ * Поля:
+ * - surnameEt, nameEt, middlenameEt, emailEt, phoneEt, passwordEt: Поля ввода для данных пользователя.
+ * - mAuth: Экземпляр FirebaseAuth для выполнения операций регистрации.
+ * - db: Экземпляр FirebaseFirestore для работы с базой данных.
+ * - generatedCode: Код подтверждения, сгенерированный для пользователя.
+ * - userData: Карта данных пользователя для сохранения в Firestore.
+ * - email: Email пользователя для отправки кода подтверждения.
+ * - isPhoneFormatting: Флаг для предотвращения рекурсии в TextWatcher при форматировании номера телефона.
+ *
+ * Методы:
+ * - setupPhoneNumberFormatting: Настраивает автоматическое форматирование номера телефона (например, "+7").
+ * - validateAndRegisterUser: Проверяет данные пользователя и инициирует процесс регистрации.
+ * - isValidPassword: Проверяет, соответствует ли пароль минимальным требованиям безопасности.
+ * - checkEmailExists: Проверяет, существует ли пользователь с указанным email в базе данных Firestore.
+ * - registerUser: Регистрирует пользователя через Firebase Authentication и сохраняет данные в Firestore.
+ * - sendVerificationCode: Отправляет код подтверждения на email пользователя через SMTP.
+ * - showVerificationDialog: Показывает диалоговое окно для ввода кода подтверждения.
+ * - showVerificationDialog: Открывает диалог подтверждения регистрации и завершает регистрацию при правильном коде.
+ * - updateUserData: Обновляет данные пользователя в Firestore.
+ *
+ * Особенности:
+ * - Интеграция с Firebase Authentication для регистрации пользователей.
+ * - Интеграция с Firebase Firestore для сохранения данных пользователя.
+ * - Использование SMTP для отправки кода подтверждения на email.
+ * - Реализация форматирования номера телефона и валидации данных.
+ * - Поддержка диалогов для подтверждения регистрации.
+ */
+
 public class RegisterActivity extends AppCompatActivity {
     private EditText surnameEt, nameEt, middlenameEt, emailEt, phoneEt, passwordEt;
     private FirebaseAuth mAuth;

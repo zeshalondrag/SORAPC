@@ -12,6 +12,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/**
+ * Класс CategoryAdapter представляет собой адаптер для отображения списка категорий в RecyclerView.
+ *
+ * Основное назначение:
+ * - Отображение данных о категориях, включая их название.
+ * - Обеспечение возможности редактирования и удаления категории через соответствующие кнопки.
+ *
+ * Основные функции:
+ * - Отображение списка категорий с использованием layout-файла (item_category).
+ * - Реализация интерфейса обратного вызова OnCategoryActionListener для обработки действий пользователя
+ *   (редактирование и удаление категорий).
+ *
+ * Поля:
+ * - categories: Список объектов Category, представляющих категории.
+ * - context: Контекст активности или фрагмента, где используется адаптер.
+ * - actionListener: Интерфейс обратного вызова для обработки действий пользователя.
+ *
+ * Вложенный класс:
+ * - CategoryViewHolder: ViewHolder, содержащий ссылки на элементы интерфейса для отображения и управления категориями.
+ */
+
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     private List<Category> categories;

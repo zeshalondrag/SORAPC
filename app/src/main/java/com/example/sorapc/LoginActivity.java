@@ -13,6 +13,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Класс LoginActivity представляет собой активность для авторизации пользователей в приложении.
+ *
+ * Основное назначение:
+ * - Предоставление интерфейса для ввода email и пароля для авторизации.
+ * - Обеспечение навигации на экраны регистрации и восстановления пароля.
+ * - Проверка учетных данных пользователя и предоставление доступа к приложению при успешной авторизации.
+ *
+ * Основные функции:
+ * - Авторизация пользователя через Firebase Authentication.
+ * - Проверка правильности ввода данных (email и пароль).
+ * - Получение роли пользователя из Firebase Firestore и передача её в MainActivity.
+ * - Переход на экран регистрации (RegisterActivity) и восстановления пароля (ResetPasswordActivity).
+ *
+ * Поля:
+ * - emailEt: Поле ввода email.
+ * - passwordEt: Поле ввода пароля.
+ * - mAuth: Экземпляр FirebaseAuth для выполнения операций авторизации.
+ * - db: Экземпляр FirebaseFirestore для работы с базой данных.
+ *
+ * Особенности:
+ * - Используется Firebase Authentication для проверки учетных данных.
+ * - Отображает сообщения об ошибках ввода и авторизации через Toast и Error-сообщения в полях ввода.
+ * - Предоставляет удобный интерфейс для навигации между экранами авторизации, регистрации и восстановления пароля.
+ */
+
 public class LoginActivity extends AppCompatActivity {
     private EditText emailEt, passwordEt;
     private FirebaseAuth mAuth;
