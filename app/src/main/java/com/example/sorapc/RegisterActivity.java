@@ -39,7 +39,6 @@ import javax.mail.internet.MimeMultipart;
  * отправку кода подтверждения на email пользователя и завершение регистрации после подтверждения.
  * </summary>
  */
-
 public class RegisterActivity extends AppCompatActivity {
     private EditText surnameEt, nameEt, middlenameEt, emailEt, phoneEt, passwordEt;
     private FirebaseAuth mAuth;
@@ -47,7 +46,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String generatedCode;
     private Map<String, Object> userData;
     private String email;
-    private boolean isPhoneFormatting = false; // Флаг для предотвращения рекурсии в TextWatcher
+    private String password; // Добавляем для временного хранения пароля
+    private boolean isPhoneFormatting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +66,6 @@ public class RegisterActivity extends AppCompatActivity {
         Button registerBtn = findViewById(R.id.register_btn);
         TextView goToLogin = findViewById(R.id.go_to_auth_activitys);
 
-        // Настройка форматирования номера телефона
         setupPhoneNumberFormatting();
 
         registerBtn.setOnClickListener(v -> validateAndRegisterUser());
@@ -87,12 +86,10 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isPhoneFormatting) return; // Предотвращаем рекурсию
+                if (isPhoneFormatting) return;
 
                 isPhoneFormatting = true;
                 String input = s.toString().trim();
-
-                // Удаляем все нецифровые символы, кроме первого символа, если это "+"
                 String digits = input.replaceAll("[^0-9+]", "");
                 if (digits.isEmpty()) {
                     phoneEt.setText("");
@@ -100,22 +97,18 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Если строка начинается с "+", оставляем его
                 if (!digits.startsWith("+")) {
-                    // Если пользователь ввёл только цифры, добавляем "+7"
                     digits = "+7" + digits;
                 } else if (digits.startsWith("+") && !digits.startsWith("+7")) {
-                    // Если пользователь ввёл "+", но не "+7", заменяем на "+7"
                     digits = "+7" + digits.substring(1);
                 }
 
-                // Ограничиваем длину номера (например, +7 и 10 цифр)
                 if (digits.length() > 12) {
                     digits = digits.substring(0, 12);
                 }
 
                 phoneEt.setText(digits);
-                phoneEt.setSelection(digits.length()); // Устанавливаем курсор в конец
+                phoneEt.setSelection(digits.length());
                 isPhoneFormatting = false;
             }
         });
@@ -127,9 +120,8 @@ public class RegisterActivity extends AppCompatActivity {
         String middlename = middlenameEt.getText().toString().trim();
         email = emailEt.getText().toString().trim();
         String phone = phoneEt.getText().toString().trim();
-        String password = passwordEt.getText().toString().trim();
+        password = passwordEt.getText().toString().trim();
 
-        // Проверка на пустые поля
         if (TextUtils.isEmpty(surname)) {
             surnameEt.setError("Введите фамилию");
             surnameEt.requestFocus();
@@ -142,7 +134,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Отчество может быть пустым, но если оно заполнено, проверяем его
         if (!TextUtils.isEmpty(middlename) && middlename.length() < 2) {
             middlenameEt.setError("Отчество должно содержать минимум 2 символа");
             middlenameEt.requestFocus();
@@ -155,7 +146,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Проверка на наличие символа "@" в email
         if (!email.contains("@")) {
             emailEt.setError("Email должен содержать символ @");
             emailEt.requestFocus();
@@ -168,7 +158,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Проверка длины номера телефона (должен быть +7 и 10 цифр, всего 12 символов)
         if (phone.length() != 12 || !phone.startsWith("+7")) {
             phoneEt.setError("Номер телефона должен начинаться с +7 и содержать 10 цифр");
             phoneEt.requestFocus();
@@ -193,7 +182,16 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        checkEmailExists(email, surname, name, middlename, phone, password);
+        // Сохраняем данные пользователя временно
+        userData = new HashMap<>();
+        userData.put("surname", surname);
+        userData.put("name", name);
+        userData.put("middlename", middlename);
+        userData.put("email", email);
+        userData.put("phone", phone);
+        userData.put("role", "Клиент");
+
+        checkEmailExists(email);
     }
 
     private boolean isValidPassword(String password) {
@@ -214,7 +212,7 @@ public class RegisterActivity extends AppCompatActivity {
         return false;
     }
 
-    private void checkEmailExists(String email, String surname, String name, String middlename, String phone, String password) {
+    private void checkEmailExists(String email) {
         db.collection("users")
                 .whereEqualTo("email", email)
                 .get()
@@ -225,7 +223,8 @@ public class RegisterActivity extends AppCompatActivity {
                                     "Пользователь с такой почтой уже существует",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            registerUser(email, password, surname, name, middlename, phone);
+                            // Отправляем код подтверждения перед регистрацией
+                            sendVerificationCode();
                         }
                     } else {
                         Toast.makeText(RegisterActivity.this,
@@ -235,31 +234,7 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void registerUser(String email, String password, String surname, String name, String middlename, String phone) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            userData = new HashMap<>();
-                            userData.put("surname", surname);
-                            userData.put("name", name);
-                            userData.put("middlename", middlename);
-                            userData.put("email", email);
-                            userData.put("phone", phone);
-                            userData.put("role", "Client");
-
-                            sendVerificationCode(user.getUid());
-                        }
-                    } else {
-                        Toast.makeText(RegisterActivity.this,
-                                "Ошибка регистрации: " + task.getException().getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void sendVerificationCode(String userId) {
+    private void sendVerificationCode() {
         generatedCode = String.valueOf(new Random().nextInt(900000) + 100000);
 
         new Thread(() -> {
@@ -314,7 +289,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 Transport.send(message);
 
-                runOnUiThread(() -> showVerificationDialog(userId));
+                runOnUiThread(this::showVerificationDialog);
 
             } catch (MessagingException e) {
                 e.printStackTrace();
@@ -325,7 +300,7 @@ public class RegisterActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void showVerificationDialog(String userId) {
+    private void showVerificationDialog() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_verification_code);
         dialog.setCancelable(false);
@@ -341,23 +316,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             if (enteredCode.equals(generatedCode)) {
-                db.collection("users")
-                        .document(userId)
-                        .set(userData)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(RegisterActivity.this,
-                                    "Регистрация успешна",
-                                    Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                            finish();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(RegisterActivity.this,
-                                    "Ошибка при сохранении данных",
-                                    Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        });
+                // После подтверждения кода создаём пользователя в Firebase Authentication
+                registerUserInFirebase(dialog);
             } else {
                 Toast.makeText(RegisterActivity.this,
                         "Неверный код подтверждения",
@@ -366,5 +326,41 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void registerUserInFirebase(Dialog dialog) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // Сохраняем данные пользователя в Firestore
+                            db.collection("users")
+                                    .document(user.getUid())
+                                    .set(userData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(RegisterActivity.this,
+                                                "Регистрация успешна",
+                                                Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(RegisterActivity.this,
+                                                "Ошибка при сохранении данных",
+                                                Toast.LENGTH_SHORT).show();
+                                        // Если не удалось сохранить данные, удаляем пользователя из Authentication
+                                        user.delete();
+                                        dialog.dismiss();
+                                    });
+                        }
+                    } else {
+                        Toast.makeText(RegisterActivity.this,
+                                "Ошибка регистрации: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
     }
 }

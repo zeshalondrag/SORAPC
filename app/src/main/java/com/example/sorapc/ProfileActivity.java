@@ -194,7 +194,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 passwordTextView.setText("********");
                                 phoneTextView.setText(phone != null ? phone : "Не указано");
 
-                                if ("Administrator".equals(role)) {
+                                if ("Администратор".equals(role)) {
                                     adminPanelButton.setVisibility(View.VISIBLE);
                                 } else {
                                     adminPanelButton.setVisibility(View.GONE);

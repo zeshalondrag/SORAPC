@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth; // Добавляем импорт
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -25,9 +27,9 @@ import java.util.List;
  * <summary>
  * Класс ClientManagementActivity предоставляет функционал для администрирования списка пользователей.
  * Позволяет отображать текущих пользователей, а также изменять их роль (например, "Client" или "Administrator").
+ * Текущий авторизованный пользователь (администратор) исключается из списка, чтобы предотвратить изменение своей роли.
  * </summary>
  */
-
 public class ClientManagementActivity extends AppCompatActivity implements ClientAdapter.OnEditRoleListener {
 
     private ImageView backIcon;
@@ -35,6 +37,7 @@ public class ClientManagementActivity extends AppCompatActivity implements Clien
     private ClientAdapter clientAdapter;
     private List<User> clientList;
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth; // Добавляем FirebaseAuth
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,7 @@ public class ClientManagementActivity extends AppCompatActivity implements Clien
         setContentView(R.layout.activity_client_management);
 
         db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance(); // Инициализируем FirebaseAuth
 
         backIcon = findViewById(R.id.back_icon);
         clientsRecyclerView = findViewById(R.id.clients_recycler_view);
@@ -60,6 +64,15 @@ public class ClientManagementActivity extends AppCompatActivity implements Clien
     }
 
     private void loadClients() {
+        FirebaseUser currentUser = mAuth.getCurrentUser(); // Получаем текущего пользователя
+        String currentUserId = currentUser != null ? currentUser.getUid() : null;
+
+        if (currentUserId == null) {
+            Toast.makeText(this, "Ошибка: пользователь не авторизован", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         db.collection("users")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -67,7 +80,10 @@ public class ClientManagementActivity extends AppCompatActivity implements Clien
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         User user = document.toObject(User.class);
                         user.setId(document.getId());
-                        clientList.add(user);
+                        // Добавляем пользователя в список, только если это не текущий авторизованный пользователь
+                        if (!user.getId().equals(currentUserId)) {
+                            clientList.add(user);
+                        }
                     }
                     clientAdapter.notifyDataSetChanged();
                 })
@@ -89,7 +105,7 @@ public class ClientManagementActivity extends AppCompatActivity implements Clien
         Button confirmButton = dialogView.findViewById(R.id.button_confirm);
         Button cancelButton = dialogView.findViewById(R.id.button_cancel);
 
-        String[] roles = {"Client", "Administrator"};
+        String[] roles = {"Клиент", "Администратор"};
         ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         roleSpinner.setAdapter(roleAdapter);
